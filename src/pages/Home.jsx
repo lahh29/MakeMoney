@@ -58,7 +58,7 @@ export function Home({ onLogout }) {
       {/* Overlay móvil */}
       {isMobile && isSidebarOpen && (
         <div
-          style={{ position: 'fixed', inset: 0, backgroundColor: 'var(--bg-overlay)', zIndex: 80 }}
+          style={{ position: 'fixed', inset: 0, backgroundColor: 'var(--bg-overlay)', zIndex: 105 }}
           onClick={() => setIsSidebarOpen(false)}
         />
       )}

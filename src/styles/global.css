@@ -840,6 +840,7 @@ a {
     width: 220px;
     height: 100vh;
     position: fixed;
+    z-index: 110;
   }
   .sidebar.sidebar-open {
     transform: translateX(0);
