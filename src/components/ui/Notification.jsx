@@ -63,7 +63,7 @@ function NotificationStack({ notifications, onRemove }) {
         aria-live="polite"
         aria-label="Notificaciones"
         style={{
-          position: 'fixed', top: '20px', left: '50%', transform: 'translateX(-50%)',
+          position: 'fixed', top: 'calc(20px + env(safe-area-inset-top, 0px))', left: '50%', transform: 'translateX(-50%)',
           zIndex: 1300, display: 'flex', flexDirection: 'column',
           gap: '8px', alignItems: 'center',
           width: 'min(92vw, 380px)', pointerEvents: 'none',
