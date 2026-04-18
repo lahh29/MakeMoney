@@ -759,11 +759,16 @@ a {
   box-shadow: none !important;
 }
 
-/* Date input — remove browser outline */
+/* Date input — iOS fix + no outline */
 input[type='date'].form-input:focus,
 input[type='date'].form-input {
   outline: none;
   box-shadow: none;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .login-container {

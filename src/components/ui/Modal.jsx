@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { IconX, IconCheck, IconTrash } from '@tabler/icons-react';
 
@@ -15,6 +15,14 @@ export function Modal({
   cancelLabel = 'Cancelar', deleteLabel = 'Borrar', acceptLabel = 'Aceptar',
   showDelete = false
 }) {
+  useEffect(() => {
+    if (isOpen) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = prev; };
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
@@ -27,7 +35,10 @@ export function Modal({
     }}>
       <div style={{ position: 'absolute', inset: 0 }} onClick={onClose} />
       <div role="dialog" aria-modal="true" aria-label={title} style={{ 
-        position: 'relative', minWidth: '300px', maxWidth: '500px', width: '90%', maxHeight: '85vh',
+        position: 'relative', minWidth: '300px', maxWidth: '500px', width: '90%', maxHeight: 'min(85svh, 85vh)',
+        WebkitTransform: 'translateZ(0)',
+        transform: 'translateZ(0)',
+        willChange: 'transform',
         backgroundColor: 'var(--bg-card)', borderRadius: '20px',
         border: '1px solid var(--border-divider)', boxShadow: 'var(--shadow-float)',
         display: 'flex', flexDirection: 'column', animation: 'dropdownFadeIn 0.2s ease'
@@ -71,7 +82,7 @@ export function Modal({
             )}
           </div>
         </div>
-        <div style={{ padding: '24px', flex: 1, overflowY: 'auto', overflowX: 'hidden', boxSizing: 'border-box', width: '100%' }}>{children}</div>
+        <div style={{ padding: '24px', flex: 1, overflowY: 'auto', overflowX: 'hidden', boxSizing: 'border-box', width: '100%', WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}>{children}</div>
       </div>
     </div>
   );
