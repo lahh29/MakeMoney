@@ -734,9 +734,9 @@ a {
   align-items: center;
 }
 
-/* Hide text labels on very small screens */
+/* Hide text labels on very small screens — only in header, not sidebar */
 @media (max-width: 479px) {
-  .header-user-text {
+  .header .header-user-text {
     display: none;
   }
 }
