@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <style>
+      /* Tema claro: fondo blanco, avión azul */
+      :root {
+        --bg: #ffffff;
+        --plane: #0071e3;
+        --trail: #0071e355;
+        --glow: #0071e322;
+      }
+
+      /* Tema oscuro: fondo negro, avión blanco/azul claro */
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #000000;
+          --plane: #64b5f6;
+          --trail: #64b5f644;
+          --glow: #64b5f622;
+        }
+      }
+
+      /* Animación de vuelo: avión sube suavemente */
+      #plane-group {
+        animation: fly 3s ease-in-out infinite;
+        transform-origin: 256px 256px;
+      }
+
+      @keyframes fly {
+        0%   { transform: translate(0px, 6px) rotate(-2deg); }
+        30%  { transform: translate(3px, -8px) rotate(2deg); }
+        60%  { transform: translate(-2px, -4px) rotate(-1deg); }
+        100% { transform: translate(0px, 6px) rotate(-2deg); }
+      }
+
+      /* Estela: fade in/out sincronizada */
+      #trail {
+        animation: trail-fade 3s ease-in-out infinite;
+        transform-origin: 256px 280px;
+      }
+
+      @keyframes trail-fade {
+        0%   { opacity: 0.3; }
+        40%  { opacity: 0.9; }
+        80%  { opacity: 0.5; }
+        100% { opacity: 0.3; }
+      }
+
+      /* Brillo pulsante */
+      #glow-circle {
+        animation: glow-pulse 3s ease-in-out infinite;
+      }
+
+      @keyframes glow-pulse {
+        0%   { opacity: 0.15; r: 90; }
+        50%  { opacity: 0.35; r: 110; }
+        100% { opacity: 0.15; r: 90; }
+      }
+    </style>
+  </defs>
+
+  <!-- Fondo -->
+  <rect width="512" height="512" rx="112" fill="var(--bg)" />
+
+  <!-- Glow central -->
+  <circle id="glow-circle" cx="256" cy="256" r="90" fill="var(--glow)" />
+
+  <!-- Estela del avión -->
+  <g id="trail">
+    <ellipse cx="200" cy="295" rx="55" ry="8" fill="var(--trail)" />
+    <ellipse cx="165" cy="305" rx="30" ry="5" fill="var(--trail)" opacity="0.6" />
+    <ellipse cx="135" cy="313" rx="14" ry="3" fill="var(--trail)" opacity="0.3" />
+  </g>
+
+  <!-- Avión -->
+  <g id="plane-group">
+    <!-- Fuselaje principal -->
+    <path
+      d="M310 240 L190 265 L175 295 L220 285 L240 310 L260 305 L248 278 L305 264 Z"
+      fill="var(--plane)"
+    />
+    <!-- Ala derecha -->
+    <path
+      d="M270 255 L330 210 L315 255 Z"
+      fill="var(--plane)"
+      opacity="0.9"
+    />
+    <!-- Ala izquierda / cola -->
+    <path
+      d="M205 278 L170 260 L180 282 Z"
+      fill="var(--plane)"
+      opacity="0.75"
+    />
+    <!-- Estabilizador vertical -->
+    <path
+      d="M192 268 L180 245 L200 265 Z"
+      fill="var(--plane)"
+      opacity="0.8"
+    />
+    <!-- Ventana de cabina -->
+    <ellipse cx="298" cy="254" rx="8" ry="5" fill="var(--bg)" opacity="0.6" />
+  </g>
+</svg>

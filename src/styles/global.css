@@ -1,0 +1,1210 @@
+/* ==========================================================================
+   VARIABLES GLOBALES (Design Tokens - Apple Inspired)
+   ========================================================================== */
+:root {
+  /* === TEMA CLARO (por defecto) === */
+  --bg-page: #ffffff;
+  --bg-surface: #f5f5f7;
+  --bg-black: #000000;
+  --text-primary: #1d1d1f;
+  --text-light: #ffffff;
+  
+  /* Colores Interactivos */
+  --apple-blue: #0071e3;
+  --link-color: #0066cc;
+  --focus-ring: #0071e3;
+  
+  /* Textos Secundarios */
+  --text-secondary: rgba(0, 0, 0, 0.8);
+  --text-tertiary: rgba(0, 0, 0, 0.48);
+  
+  /* Superficies */
+  --bg-card: #ffffff;
+  --bg-sidebar: #ffffff;
+  --bg-header: #ffffff;
+  --bg-input: #f5f5f7;
+  
+  /* Estados de Botón */
+  --btn-active: #ededf2;
+  --btn-default-light: #fafafc;
+  --overlay: rgba(210, 210, 215, 0.64);
+  
+  /* Bordes y Divisores */
+  --border-divider: rgba(0, 0, 0, 0.1);
+  
+  /* Sombras y Elevación */
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-float: 0 8px 40px rgba(0, 0, 0, 0.18), 0 2px 12px rgba(0, 0, 0, 0.08);
+  
+  /* Tipografía */
+  --font-display: 'SF Pro Display', 'SF Pro Icons', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-text: 'SF Pro Text', 'SF Pro Icons', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  
+  /* Radios de Borde */
+  --radius-micro: 5px;
+  --radius-sm: 8px;
+  --radius-md: 11px;
+  --radius-lg: 12px;
+  --radius-pill: 980px;
+  --radius-circle: 50%;
+  
+  /* Espaciado Base */
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --container-max: 980px;
+
+  /* Header en tema claro */
+  --header-text: #1d1d1f;
+  --header-text-secondary: rgba(0, 0, 0, 0.6);
+}
+
+/* === TEMA OSCURO === */
+.dark-theme {
+  --bg-page: #000000;
+  --bg-surface: #1d1d1f;
+  --text-primary: #f5f5f7;
+  --text-light: #ffffff;
+  
+  --link-color: #2997ff;
+  
+  --text-secondary: rgba(255, 255, 255, 0.8);
+  --text-tertiary: rgba(255, 255, 255, 0.48);
+  
+  --bg-card: #1c1c1e;
+  --bg-sidebar: #1c1c1e;
+  --bg-header: rgba(28, 28, 30, 0.9);
+  --bg-input: #2c2c2e;
+  
+  --btn-active: #3a3a3c;
+  --btn-default-light: #2c2c2e;
+  --overlay: rgba(44, 44, 46, 0.64);
+  
+  --border-divider: rgba(255, 255, 255, 0.1);
+  
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+  
+  --header-text: #f5f5f7;
+  --header-text-secondary: rgba(255, 255, 255, 0.6);
+}
+
+/* ==========================================================================
+   RESET & BASE
+   ========================================================================== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-text);
+  color: var(--text-primary);
+  background-color: var(--bg-page);
+  line-height: 1.47;
+  letter-spacing: -0.374px;
+  font-size: 17px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ==========================================================================
+   TIPOGRAFÍA
+   ========================================================================== */
+h1, .hero-title {
+  font-family: var(--font-display);
+  font-size: 56px;
+  font-weight: 600;
+  line-height: 1.07;
+  letter-spacing: -0.28px;
+  text-align: center;
+}
+
+h2, .section-title {
+  font-family: var(--font-display);
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+h3, .card-title {
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.19;
+  letter-spacing: 0.231px;
+}
+
+/* Enlaces */
+a {
+  color: var(--link-color);
+  text-decoration: none;
+}
+
+/* ==========================================================================
+   COMPONENTES: BUTTONS (Botones)
+   ========================================================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-text);
+  font-size: 17px;
+  font-weight: 400;
+  padding: 8px 15px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* Botón Primario (Call to Action) */
+.btn-primary {
+  background-color: var(--apple-blue);
+  color: var(--text-light);
+}
+
+.btn-primary:active {
+  background-color: var(--btn-active);
+  color: var(--text-dark);
+}
+
+/* Botón Oscuro */
+.btn-dark {
+  background-color: var(--text-primary);
+  color: var(--bg-page);
+}
+
+/* Botón Forma de Píldora (Learn More / Shop) */
+.btn-pill {
+  background-color: transparent;
+  color: var(--link-color);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--link-color);
+  padding: 8px 24px;
+}
+
+.btn-pill:hover {
+  text-decoration: underline;
+}
+
+/* Botón icono dentro de dropdown */
+.dropdown-icon-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-circle);
+  border: 1px solid var(--border-divider);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.dropdown-icon-action:hover {
+  background: var(--bg-input);
+  color: var(--text-primary);
+}
+
+.dropdown-icon-action--danger {
+  color: #ff3b30;
+  border-color: rgba(255, 59, 48, 0.2);
+}
+
+.dropdown-icon-action--danger:hover {
+  background: rgba(255, 59, 48, 0.08);
+  color: #ff3b30;
+}
+
+
+/* Botón solo icono (sin texto) */
+.btn--icon-only {
+  padding: 8px;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-circle);
+}
+
+/* Botón icono en toolbar de página */
+.toolbar-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-divider);
+  background: var(--bg-card);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.toolbar-icon-btn:hover {
+  background: var(--bg-surface);
+}
+
+/* ==========================================================================
+   COMPONENTES: SEARCH BAR
+   ========================================================================== */
+.search-bar-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-divider);
+  border-radius: var(--radius-pill);
+  transition: border-color 0.2s ease;
+}
+
+.search-bar--focused {
+  border-color: var(--border-divider);
+}
+
+.search-bar--open {
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  border-color: var(--border-divider);
+}
+
+.search-bar__icon {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.search-bar__input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  box-shadow: none;
+  -webkit-appearance: none;
+  font-family: var(--font-text);
+  font-size: 14px;
+  color: var(--text-primary);
+  width: 100%;
+  min-width: 0;
+}
+
+.search-bar__input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.search-bar__input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.search-bar__clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: none;
+  background: var(--text-tertiary);
+  color: var(--bg-card);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.search-bar__suggestions {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  z-index: 200;
+  background: var(--bg-card);
+  border: 1px solid var(--border-divider);
+  border-top: none;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  box-shadow: var(--shadow-float);
+  max-height: 200px;
+  overflow-y: auto;
+  list-style: none;
+  padding: 4px 0;
+  margin: 0;
+}
+
+.search-bar__suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-primary);
+  transition: background-color 0.1s ease;
+}
+
+.search-bar__suggestion-item:hover,
+.search-bar__suggestion-item--active {
+  background: var(--bg-surface);
+}
+
+/* ==========================================================================
+   BOTONES DE ACCIÓN EN PANELES (Modal, Dialog, Drawer, Notificación)
+   ========================================================================== */
+.panel-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border-divider);
+  border-radius: var(--radius-pill);
+  padding: 5px 14px;
+  font-family: var(--font-text);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--link-color);
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+  flex-shrink: 0;
+}
+
+.panel-action:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.panel-action:active {
+  transform: scale(0.96);
+}
+
+.panel-action--bold {
+  font-weight: 600;
+}
+
+.panel-action--danger {
+  color: #ff3b30;
+  border-color: rgba(255, 59, 48, 0.2);
+}
+
+.panel-action--icon {
+  padding: 5px;
+  width: 28px;
+  height: 28px;
+  color: var(--text-tertiary);
+}
+
+/* ==========================================================================
+   COMPONENTES: CARD (Tarjetas)
+   ========================================================================== */
+.card {
+  background-color: var(--bg-card);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border-divider);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* ==========================================================================
+   COMPONENTES: HEADER & NAVIGATION (Navegación Superior)
+   ========================================================================== */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: 48px;
+  background-color: var(--bg-header);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid var(--border-divider);
+  transition: background-color 0.3s ease;
+  box-shadow: 0 1px 12px rgba(0, 0, 0, 0.06), 0 4px 24px rgba(0, 0, 0, 0.04);
+}
+
+/* Header — user pill trigger */
+.header-user-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px 5px 5px;
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid var(--border-divider);
+  cursor: pointer;
+  transition: background-color 0.15s, box-shadow 0.15s;
+}
+
+.header-user-pill:hover {
+  background: rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+}
+
+.header-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--apple-blue), #40a9ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 1px 6px rgba(0, 113, 227, 0.4);
+}
+
+.header-user-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.header-user-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.header-user-email {
+  font-size: 10px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+.header-chevron {
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+}
+
+/* Hide text labels on very small screens */
+@media (max-width: 479px) {
+  .header-user-text {
+    display: none;
+  }
+}
+
+.nav-link {
+  color: var(--text-light);
+  font-size: 12px;
+  font-weight: 400;
+  padding: 0 var(--space-2);
+}
+
+.nav-link:hover {
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+   COMPONENTES: SIDEBAR (Barra Lateral)
+   ========================================================================== */
+.sidebar {
+  background-color: var(--bg-sidebar);
+  width: 220px;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  padding: 0;
+  overflow-y: auto;
+  border-right: 1px solid var(--border-divider);
+  z-index: 90;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.06);
+}
+
+/* ==========================================================================
+   COMPONENTES: NAV PILLS (Sidebar navigation)
+   ========================================================================== */
+.nav-pill {
+  border-radius: 999px;
+  padding: 0;
+  position: relative;
+  user-select: none;
+}
+
+.nav-pill__bg {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: var(--apple-blue);
+  box-shadow: 0 4px 16px rgba(0, 113, 227, 0.35), 0 1px 4px rgba(0, 113, 227, 0.2);
+  display: block;
+}
+
+.nav-pill__content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: color 0.15s;
+  border-radius: 999px;
+}
+
+.nav-pill:hover .nav-pill__content {
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--text-primary);
+}
+
+.nav-pill--active .nav-pill__content {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.nav-pill--active:hover .nav-pill__content {
+  background: transparent;
+}
+
+/* Sidebar responsivo en móviles */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    width: 220px;
+    height: 100vh;
+    position: fixed;
+  }
+  .sidebar.sidebar-open {
+    transform: translateX(0);
+  }
+}
+
+/* ==========================================================================
+   COMPONENTES: ICONS PLUS / X (Botones de Cierre y Agregar)
+   ========================================================================== */
+.icon-btn, .btn-close, .btn-plus {
+  background: var(--overlay);
+  color: var(--text-tertiary);
+  border: none;
+  border-radius: var(--radius-circle);
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.icon-btn:hover {
+  background: var(--text-tertiary);
+  color: var(--text-light);
+}
+
+.icon-btn:active {
+  transform: scale(0.9);
+}
+
+/* ==========================================================================
+   LAYOUT & CONTENT (Estructura y Contenido)
+   ========================================================================== */
+.container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 var(--space-2);
+}
+
+.hero-section {
+  background-color: var(--bg-black);
+  color: var(--text-light);
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-4) var(--space-2);
+}
+
+.content-section {
+  background-color: var(--bg-light);
+  color: var(--text-dark);
+  padding: calc(var(--space-4) * 2) 0;
+}
+
+.grid-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-3);
+}
+
+/* ==========================================================================
+   FORM & LOGIN (Formularios e Inicio de Sesión)
+   ========================================================================== */
+.form-group {
+  margin-bottom: var(--space-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+  width: 100%;
+}
+
+.form-label {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.form-input, .form-select {
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-divider);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  font-family: var(--font-text);
+  font-size: 17px;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.3s ease;
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.form-input:focus, .form-select:focus {
+  border-color: var(--border-divider);
+  box-shadow: none;
+  outline: none;
+}
+
+/* Hide native spinners on number inputs */
+.form-input[type='number']::-webkit-inner-spin-button,
+.form-input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.form-input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+/* ==========================================================================
+   INPUT STEPPER (número con + / -)
+   ========================================================================== */
+.input-stepper {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--border-divider);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--bg-input);
+  transition: box-shadow 0.2s;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.input-stepper:focus-within {
+  box-shadow: none;
+  border-color: var(--border-divider);
+}
+
+.input-stepper__btn {
+  flex-shrink: 0;
+  width: 32px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 16px;
+  font-weight: 400;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s, color 0.15s;
+  line-height: 1;
+}
+
+.input-stepper__btn:hover {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+.input-stepper__btn:active {
+  background: var(--overlay);
+}
+
+.input-stepper__field {
+  flex: 1;
+  min-width: 0;
+  border: none !important;
+  border-radius: 0 !important;
+  text-align: center;
+  padding: 12px 2px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input-stepper__field:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Date input — remove browser outline */
+input[type='date'].form-input:focus,
+input[type='date'].form-input {
+  outline: none;
+  box-shadow: none;
+}
+
+.login-container {
+  max-width: 400px;
+  margin: 10vh auto;
+  padding: var(--space-4);
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+/* ==========================================================================
+   SELECT (Desplegables)
+   ========================================================================== */
+.form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px;
+  padding-right: 40px;
+}
+
+/* ==========================================================================
+   ANIMACIONES (Dropdown, Transiciones)
+   ========================================================================== */
+@keyframes dropdownFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   RESPONSIVE (Adaptabilidad)
+   ========================================================================== */
+@media (max-width: 768px) {
+  h1, .hero-title {
+    font-size: 40px;
+  }
+  
+  .grid-layout {
+    grid-template-columns: 1fr;
+  }
+
+  /* Ocultar texto de usuario en header en móvil */
+  .user-info-text {
+    display: none !important;
+  }
+
+  /* Dropdown adaptado en móvil */
+  .dropdown-menu {
+    min-width: 200px !important;
+    right: 0 !important;
+  }
+}
+
+/* ==========================================================================
+   ACCESIBILIDAD (Utilidades)
+   ========================================================================== */
+
+/* Solo visible para lectores de pantalla */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Skip navigation visible al hacer focus */
+.sr-only:focus {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  width: auto;
+  height: auto;
+  padding: 8px 16px;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  z-index: 10000;
+  background: var(--apple-blue);
+  color: white;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: var(--shadow-float);
+}
+
+/* Focus visible global */
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* Reset focus for mouse users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ==========================================================================
+   LOGIN PAGE
+   ========================================================================== */
+.login-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-black);
+  transition: background-color 0.3s ease;
+  overflow: hidden;
+}
+
+.login-hero {
+  padding: 60px 24px 48px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.login-logo {
+  width: 80px;
+  height: 80px;
+  display: block;
+  /* SVG has its own rounded corners + bg — no extra styles needed */
+  filter: drop-shadow(0 4px 20px rgba(0, 113, 227, 0.4));
+}
+
+.login-title {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 5vw, 40px);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.3px;
+  margin: 0;
+  color: var(--text-light);
+}
+
+.login-subtitle {
+  font-family: var(--font-text);
+  font-size: clamp(14px, 2vw, 17px);
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.47;
+  margin: 0;
+}
+
+.login-form-section {
+  flex: 1;
+  background: var(--bg-page);
+  border-radius: 24px 24px 0 0;
+  padding: 40px 24px 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.login-form-container {
+  width: 100%;
+  max-width: 360px;
+}
+
+.login-form-heading {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--text-primary);
+  margin: 0 0 28px;
+}
+
+.login-forgot {
+  font-size: 14px;
+  color: var(--link-color);
+  text-decoration: none;
+  transition: opacity 0.2s;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-text);
+  padding: 0;
+}
+
+.login-forgot:hover {
+  opacity: 0.7;
+}
+
+.login-error {
+  color: #ff3b30;
+  font-size: 13px;
+  margin-top: 4px;
+  min-height: 20px;
+}
+
+.login-footer {
+  margin-top: auto;
+  padding-top: 32px;
+  text-align: center;
+}
+
+.login-footer-text {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  line-height: 1.47;
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .login-wrapper {
+    flex-direction: row;
+  }
+
+  .login-hero {
+    flex: 1;
+    justify-content: center;
+    padding: 48px 40px;
+    min-height: 100vh;
+    position: sticky;
+    top: 0;
+  }
+
+  .login-form-section {
+    flex: 1;
+    max-width: 520px;
+    border-radius: 24px 0 0 24px;
+    padding: 48px 40px;
+    justify-content: center;
+    min-height: 100vh;
+  }
+
+  .login-form-heading {
+    font-size: 24px;
+    margin-bottom: 32px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .login-hero {
+    flex: 1.2;
+    gap: 16px;
+  }
+
+  .login-form-section {
+    max-width: 480px;
+    padding: 48px 56px;
+  }
+}
+
+/* ==========================================================================
+   PLANE TRANSITION (Login → Home)
+   ========================================================================== */
+.plane-transition-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-page);
+  overflow: hidden;
+  pointer-events: all;
+}
+
+.plane-icon {
+  position: absolute;
+  color: var(--apple-blue);
+  filter: drop-shadow(0 4px 20px rgba(0, 113, 227, 0.35));
+  z-index: 2;
+}
+
+.plane-icon svg {
+  transform: rotate(-45deg);
+}
+
+.plane-trail {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  z-index: 1;
+}
+
+.plane-trail-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-circle);
+  background: var(--apple-blue);
+  opacity: 0;
+}
+
+.plane-circle-wipe {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-circle);
+  background: var(--apple-blue);
+  z-index: 3;
+}
+
+/* ==========================================================================
+   RESPONSIVE — BREAKPOINTS COMPLETOS
+   ========================================================================== */
+
+/* Prevent horizontal overflow globally */
+html, body, #root {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Touch targets: all interactive elements ≥44px */
+button, a, [role="button"], input, select, textarea,
+.dropdown-item, nav li {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Inputs & labels don't need 44px min-width */
+input, textarea, select, label {
+  min-width: unset;
+}
+
+/* iOS safe areas — notch / home indicator */
+.header {
+  padding-top: env(safe-area-inset-top);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+.sidebar {
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+main {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ── Extra Small: phones < 480px ── */
+@media (max-width: 479px) {
+  :root {
+    --container-max: 100%;
+  }
+
+  h1, .hero-title {
+    font-size: 32px;
+  }
+
+  h2 {
+    font-size: 22px;
+  }
+
+  .login-wrapper {
+    flex-direction: column;
+  }
+
+  .login-hero {
+    min-height: 180px;
+    padding: 32px 24px;
+    border-radius: 0;
+  }
+
+  .login-form-section {
+    border-radius: 0;
+    padding: 32px 20px;
+  }
+
+  .login-form-container {
+    max-width: 100%;
+  }
+}
+
+/* ── Small: phones 480–767px ── */
+@media (min-width: 480px) and (max-width: 767px) {
+  h1, .hero-title {
+    font-size: 40px;
+  }
+
+  .login-form-section {
+    padding: 36px 28px;
+  }
+}
+
+/* ── Medium: tablets 768–1023px ── */
+@media (min-width: 768px) and (max-width: 1023px) {
+  :root {
+    --container-max: 720px;
+  }
+
+  h1, .hero-title {
+    font-size: 44px;
+  }
+}
+
+/* ── Large: desktop 1024–1199px ── */
+@media (min-width: 1024px) and (max-width: 1199px) {
+  :root {
+    --container-max: 900px;
+  }
+}
+
+/* ── X-Large: wide screens ≥1440px ── */
+@media (min-width: 1440px) {
+  :root {
+    --container-max: 1200px;
+  }
+
+  h1, .hero-title {
+    font-size: 64px;
+  }
+}
+
+/* ── Landscape phones ── */
+@media (max-width: 767px) and (orientation: landscape) {
+  .login-wrapper {
+    flex-direction: row;
+  }
+
+  .login-hero {
+    min-height: unset;
+    min-width: 200px;
+    max-width: 260px;
+    padding: 24px 20px;
+  }
+
+  .login-form-section {
+    overflow-y: auto;
+    padding: 20px 24px;
+  }
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
