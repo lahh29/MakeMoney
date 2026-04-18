@@ -23,11 +23,13 @@ export function Sidebar({ children, isOpen = true, className = '', ...props }) {
         >
           {/* Barra superior alineada con header */}
           <div style={{ 
-            height: '48px', 
+            height: 'calc(48px + env(safe-area-inset-top))', 
             minHeight: '48px',
             display: 'flex', 
-            alignItems: 'center', 
-            padding: '0 20px',
+            alignItems: 'center',
+            paddingTop: 'env(safe-area-inset-top)',
+            paddingLeft: '20px',
+            paddingRight: '20px',
             borderBottom: '1px solid var(--border-divider)',
           }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
