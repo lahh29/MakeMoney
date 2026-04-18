@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const ANIM = {
   close:    { whileHover: { rotate: 90, scale: 1.1 },                                      whileTap: { scale: 0.88 } },
@@ -15,7 +15,19 @@ const ANIM = {
   default:  { whileHover: { scale: 1.05 },                                                  whileTap: { scale: 0.95 } },
 };
 
-export function Button({ children, variant = 'primary', icon: Icon, animationType, className = '', ...props }) {
+const Spinner = () => (
+  <motion.svg
+    width="16" height="16" viewBox="0 0 16 16" fill="none"
+    animate={{ rotate: 360 }}
+    transition={{ repeat: Infinity, duration: 0.7, ease: 'linear' }}
+    style={{ flexShrink: 0 }}
+  >
+    <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="2.5" opacity="0.25" />
+    <path d="M14.5 8a6.5 6.5 0 0 0-6.5-6.5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+  </motion.svg>
+);
+
+export function Button({ children, variant = 'primary', icon: Icon, animationType, loading, className = '', ...props }) {
   const anim = ANIM[animationType] || ANIM[variant] || ANIM.default;
   const variantClass = variant === 'pill' ? 'btn-pill' :
                        variant === 'dark' ? 'btn-dark' :
@@ -25,13 +37,39 @@ export function Button({ children, variant = 'primary', icon: Icon, animationTyp
   return (
     <motion.button
       className={`btn ${variantClass} ${iconOnlyClass} ${className}`.trim()}
-      whileHover={anim.whileHover}
-      whileTap={anim.whileTap}
+      whileHover={loading ? {} : anim.whileHover}
+      whileTap={loading ? {} : anim.whileTap}
       transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+      disabled={loading || props.disabled}
       {...props}
     >
-      {Icon && <Icon size={18} />}
-      {children}
+      <AnimatePresence mode="wait">
+        {loading ? (
+          <motion.span
+            key="loading"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.15 }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+          >
+            <Spinner />
+            <span>Guardando…</span>
+          </motion.span>
+        ) : (
+          <motion.span
+            key="content"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.15 }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+          >
+            {Icon && <Icon size={18} />}
+            {children}
+          </motion.span>
+        )}
+      </AnimatePresence>
     </motion.button>
   );
 }

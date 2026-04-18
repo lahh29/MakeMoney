@@ -7,4 +7,12 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Faltan variables de entorno VITE_SUPABASE_URL o VITE_SUPABASE_ANON_KEY');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    // Bypass navigator.locks deadlock — execute callback immediately
+    lock: (name, acquireTimeout, cb) => cb(),
+    storageKey: `sb-${new URL(supabaseUrl).hostname.split('.')[0]}-auth-token`,
+  },
+});

@@ -29,7 +29,7 @@ export function Modal({
     <div style={{ 
       position: 'fixed', inset: 0, zIndex: 1000, 
       display: 'flex', alignItems: 'center', justifyContent: 'center', 
-      backgroundColor: 'rgba(0,0,0,0.4)', 
+      backgroundColor: 'var(--bg-overlay)', 
       backdropFilter: 'saturate(180%) blur(4px)',
       WebkitBackdropFilter: 'saturate(180%) blur(4px)'
     }}>
@@ -39,7 +39,7 @@ export function Modal({
         WebkitTransform: 'translateZ(0)',
         transform: 'translateZ(0)',
         willChange: 'transform',
-        backgroundColor: 'var(--bg-card)', borderRadius: '20px',
+        backgroundColor: 'var(--bg-card)', borderRadius: 'var(--radius-xl)',
         border: '1px solid var(--border-divider)', boxShadow: 'var(--shadow-float)',
         display: 'flex', flexDirection: 'column', animation: 'dropdownFadeIn 0.2s ease'
       }}>
@@ -56,7 +56,7 @@ export function Modal({
             whileTap={PANEL_ANIM.close.whileTap}
             transition={spring}
           ><IconX size={18} /></motion.button>
-          <span style={{ flex: 1, textAlign: 'center', fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{title}</span>
+          <span style={{ flex: 1, textAlign: 'center', fontSize: 'var(--fs-nav)', fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{title}</span>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexShrink: 0 }}>
             {showDelete && onDelete && (
               <motion.button

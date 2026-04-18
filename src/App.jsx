@@ -4,6 +4,7 @@ import { Home } from './pages/Home';
 import { Login } from './pages/Login';
 import { NotificationProvider } from './components/ui/Notification';
 import { AuthProvider, useAuth } from './hooks/useAuth';
+import { AppearanceProvider } from './hooks/useAppearance';
 import { PlaneTransition } from './components/ui/PlaneTransition';
 
 function AppContent() {
@@ -50,7 +51,7 @@ function AppContent() {
         backgroundColor: 'var(--bg-page)',
         color: 'var(--text-primary)',
         fontFamily: 'var(--font-text)',
-        fontSize: '17px'
+        fontSize: 'var(--fs-lg)'
       }}>
         Cargando...
       </div>
@@ -78,9 +79,11 @@ export function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <NotificationProvider>
-          <AppContent />
-        </NotificationProvider>
+        <AppearanceProvider>
+          <NotificationProvider>
+            <AppContent />
+          </NotificationProvider>
+        </AppearanceProvider>
       </AuthProvider>
     </BrowserRouter>
   );

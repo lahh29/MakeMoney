@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { IconChevronDown, IconCheck } from '@tabler/icons-react';
+import '../../styles/scrollbar.css';
 
 export function Select({ label, id, options = [], value, onChange, placeholder = 'Seleccionar...', className = '' }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -59,7 +60,7 @@ export function Select({ label, id, options = [], value, onChange, placeholder =
           backgroundColor: 'var(--bg-input)',
           border: '1px solid var(--border-divider)',
           borderRadius: isOpen ? 'var(--radius-md) var(--radius-md) 0 0' : 'var(--radius-md)',
-          fontFamily: 'var(--font-text)', fontSize: '17px',
+          fontFamily: 'var(--font-text)', fontSize: 'var(--fs-lg)',
           color: selected ? 'var(--text-primary)' : 'var(--text-tertiary)',
           cursor: 'pointer', textAlign: 'left', outline: 'none',
           transition: 'border-color 0.2s',
@@ -81,7 +82,8 @@ export function Select({ label, id, options = [], value, onChange, placeholder =
 
       {/* Dropdown list — rendered via Portal to body */}
       {isOpen && ReactDOM.createPortal(
-        <div 
+        <div
+          className="custom-scroll"
           style={{
             position: 'fixed',
             top: dropdownPos.top,
@@ -112,7 +114,7 @@ export function Select({ label, id, options = [], value, onChange, placeholder =
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                   width: '100%', padding: '10px 14px',
                   background: 'none', border: 'none', cursor: 'pointer',
-                  fontFamily: 'var(--font-text)', fontSize: '15px',
+                  fontFamily: 'var(--font-text)', fontSize: 'var(--fs-nav)',
                   color: isSelected ? 'var(--apple-blue)' : 'var(--text-primary)',
                   fontWeight: isSelected ? 600 : 400, textAlign: 'left',
                   transition: 'background-color 0.15s ease'

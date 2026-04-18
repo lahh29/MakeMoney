@@ -9,6 +9,8 @@ import { Productos } from './Productos';
 import { Resumen } from './Resumen';
 import { Configuracion } from './Configuracion';
 import { Inicio } from './Inicio';
+import { useAppearance } from '../hooks/useAppearance';
+import { useAuth } from '../hooks/useAuth';
 
 const PAGES = {
   '/':              { label: 'Inicio',        icon: IconHome        },
@@ -21,7 +23,8 @@ const PAGES = {
 export function Home({ onLogout }) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const [isDark, setIsDark] = useState(false);
+  const { isDark, toggleDark } = useAppearance();
+  const { user, role } = useAuth();
   const [headerActions, setHeaderActions] = useState(null);
 
   // Responsive sidebar
@@ -39,14 +42,6 @@ export function Home({ onLogout }) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const toggleTheme = () => {
-    setIsDark(prev => {
-      const next = !prev;
-      document.documentElement.classList.toggle('dark-theme', next);
-      return next;
-    });
-  };
-
   const currentLabel = PAGES[pathname]?.label ?? PAGES['/'].label;
 
   useEffect(() => {
@@ -63,12 +58,20 @@ export function Home({ onLogout }) {
       {/* Overlay móvil */}
       {isMobile && isSidebarOpen && (
         <div
-          style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)', zIndex: 80 }}
+          style={{ position: 'fixed', inset: 0, backgroundColor: 'var(--bg-overlay)', zIndex: 80 }}
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
 
-      <Sidebar isOpen={isSidebarOpen}>
+      <Sidebar
+        isOpen={isSidebarOpen}
+        isDark={isDark}
+        toggleTheme={toggleDark}
+        onLogout={onLogout}
+        onNavigate={handleNavigate}
+        user={user}
+        role={role}
+      >
         <nav style={{ padding: '12px 12px 24px' }}>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
             {Object.entries(PAGES)
@@ -105,16 +108,11 @@ export function Home({ onLogout }) {
 
       <main style={{
         flex: 1,
+        minWidth: 0,
         marginLeft: (!isMobile && isSidebarOpen) ? '220px' : '0',
         transition: 'margin 0.2s ease',
-        width: '100%',
       }}>
-        <Header
-          isDark={isDark}
-          toggleTheme={toggleTheme}
-          onLogout={onLogout}
-          onNavigate={handleNavigate}
-        >
+        <Header>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <motion.button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -130,7 +128,7 @@ export function Home({ onLogout }) {
             >
               <IconSend size={18} />
             </motion.button>
-            <span style={{ color: 'var(--header-text)', fontWeight: 600, fontSize: '17px' }}>
+            <span style={{ color: 'var(--header-text)', fontWeight: 600, fontSize: 'var(--fs-lg)' }}>
               {currentLabel}
             </span>
             {headerActions && (

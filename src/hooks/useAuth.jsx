@@ -77,12 +77,53 @@ export function AuthProvider({ children }) {
     await supabase.auth.signOut({ scope: 'local' }).catch(console.error);
   };
 
+  // Direct REST helper — bypass all SDK auth methods (getSession/updateUser deadlock)
+  const _getToken = () => {
+    try {
+      const key = `sb-${new URL(import.meta.env.VITE_SUPABASE_URL).hostname.split('.')[0]}-auth-token`;
+      const stored = JSON.parse(localStorage.getItem(key));
+      return stored?.access_token ?? null;
+    } catch { return null; }
+  };
+
+  const _authPut = async (body) => {
+    const token = _getToken();
+    if (!token) throw new Error('Sesión expirada. Vuelve a iniciar sesión.');
+
+    const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/auth/v1/user`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.msg || err.message || `Error ${res.status}`);
+    }
+    return res.json();
+  };
+
+  const updateProfile = async (metadata) => {
+    const result = await _authPut({ data: metadata });
+    if (result) setUser(prev => ({ ...prev, ...result, user_metadata: { ...prev?.user_metadata, ...metadata } }));
+  };
+
+  const updatePassword = async (newPassword) => {
+    await _authPut({ password: newPassword });
+  };
+
   const value = {
     user,
     role,
     loading,
     signIn,
     signOut,
+    updateProfile,
+    updatePassword,
     isAdmin: role === 'administrador',
     isVendedor: role === 'vendedor',
     isAuthenticated: !!user,

@@ -4,11 +4,11 @@ import { Button } from './Button';
 export function ProductCard({ title, description, image, price, onLearnMore, onBuy }) {
   return (
     <div className="card" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <div style={{ backgroundColor: '#ffffff', padding: '32px 16px', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '240px' }}>
+      <div style={{ backgroundColor: 'var(--bg-surface)', padding: '32px 16px', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '240px' }}>
         {image ? (
           <img src={image} alt={title} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
         ) : (
-          <div style={{ color: 'var(--text-tertiary)', fontSize: '14px' }}>[Imagen del Producto]</div>
+          <div style={{ color: 'var(--text-tertiary)', fontSize: 'var(--fs-body)' }}>[Imagen del Producto]</div>
         )}
       </div>
       
@@ -18,13 +18,13 @@ export function ProductCard({ title, description, image, price, onLearnMore, onB
         </h3>
         
         {description && (
-          <p style={{ margin: '0 0 16px 0', fontSize: '14px', color: 'var(--text-secondary)', lineHeight: 1.47 }}>
+          <p style={{ margin: '0 0 16px 0', fontSize: 'var(--fs-body)', color: 'var(--text-secondary)', lineHeight: 1.47 }}>
             {description}
           </p>
         )}
         
         {price && (
-          <p style={{ margin: '0 0 24px 0', fontSize: '17px', fontWeight: 600 }}>
+          <p style={{ margin: '0 0 24px 0', fontSize: 'var(--fs-lg)', fontWeight: 600 }}>
             {price}
           </p>
         )}

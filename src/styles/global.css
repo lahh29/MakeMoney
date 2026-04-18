@@ -55,9 +55,41 @@
   --space-4: 32px;
   --container-max: 980px;
 
+  /* Font Size Tiers (updated by useAppearance) */
+  --fs-xs: 11px;
+  --fs-sm: 12px;
+  --fs-md: 13px;
+  --fs-body: 14px;
+  --fs-nav: 15px;
+  --fs-lg: 17px;
+
+  /* Colores semánticos */
+  --color-danger: #ff3b30;
+  --color-pdf: #e53935;
+  --color-xls: #2e7d32;
+
+  /* Overlay & Modal */
+  --bg-overlay: rgba(0, 0, 0, 0.4);
+  --radius-xl: 20px;
+
+  /* Colores semánticos adicionales */
+  --color-success: #34c759;
+  --apple-blue-bg: rgba(0, 113, 227, 0.1);
+  --apple-blue-light: #40a9ff;
+  --color-danger-bg: rgba(255, 59, 48, 0.1);
+
+  /* Toggle */
+  --toggle-off: rgba(120, 120, 128, 0.32);
+  --shadow-toggle: 0 1px 4px rgba(0, 0, 0, 0.3);
+  --shadow-blue: 0 4px 16px rgba(0, 113, 227, 0.35);
+
   /* Header en tema claro */
   --header-text: #1d1d1f;
   --header-text-secondary: rgba(0, 0, 0, 0.6);
+
+  /* Scrollbar */
+  --scrollbar-thumb: rgba(0, 0, 0, 0.2);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.38);
 }
 
 /* === TEMA OSCURO === */
@@ -84,9 +116,30 @@
   --border-divider: rgba(255, 255, 255, 0.1);
   
   --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+
+  /* Colores semánticos dark */
+  --color-danger: #ff453a;
+  --color-pdf: #ef5350;
+  --color-xls: #66bb6a;
   
+  /* Overlay & Modal */
+  --bg-overlay: rgba(0, 0, 0, 0.5);
+
+  /* Colores semánticos adicionales */
+  --color-success: #30d158;
+  --apple-blue-bg: rgba(41, 151, 255, 0.15);
+  --apple-blue-light: #59b8ff;
+  --color-danger-bg: rgba(255, 69, 58, 0.15);
+
+  /* Toggle */
+  --toggle-off: rgba(120, 120, 128, 0.4);
+
   --header-text: #f5f5f7;
   --header-text-secondary: rgba(255, 255, 255, 0.6);
+
+  /* Scrollbar */
+  --scrollbar-thumb: rgba(255, 255, 255, 0.2);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.38);
 }
 
 /* ==========================================================================
@@ -104,7 +157,7 @@ body {
   background-color: var(--bg-page);
   line-height: 1.47;
   letter-spacing: -0.374px;
-  font-size: 17px;
+  font-size: var(--font-size-base, 17px);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: background-color 0.3s ease, color 0.3s ease;
@@ -250,6 +303,196 @@ a {
 
 .toolbar-icon-btn:hover {
   background: var(--bg-surface);
+}
+
+/* ==========================================================================
+   COMPONENTES: CHIPS SCROLL ROW
+   ========================================================================== */
+
+/* Fila de chips — scroll horizontal único, sin overflow visible */
+.chips-scroll-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 4px;         /* espacio para sombra de chips */
+  position: relative;
+
+  /* Ocultar scrollbar en todos los browsers */
+  scrollbar-width: none;       /* Firefox */
+  -ms-overflow-style: none;    /* IE/Edge */
+}
+
+.chips-scroll-row::-webkit-scrollbar {
+  display: none;               /* Chrome / Safari */
+}
+
+/* Chip activo siempre visible en scroll */
+.chips-scroll-row .chip {
+  scroll-snap-align: start;
+  flex-shrink: 0;
+}
+
+/* Fade derecho cuando hay chips fuera de vista */
+.chips-scroll-row-wrap {
+  position: relative;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Botones de navegación de chips */
+.chips-arrow {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-circle);
+  border: 1px solid var(--border-divider);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-card);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: background-color 0.15s ease, color 0.15s ease;
+  z-index: 2;
+  min-height: unset;
+  min-width: unset;
+  padding: 0;
+}
+
+.chips-arrow:hover {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+
+/* ==========================================================================
+   COMPONENTES: CHIPS (filtros de categoría)
+   ========================================================================== */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-text);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1;
+  border: 1px solid var(--border-divider);
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  white-space: nowrap;
+}
+
+.chip:hover {
+  background: var(--btn-active);
+}
+
+.chip--active {
+  background: var(--apple-blue);
+  color: #ffffff;
+  border-color: var(--apple-blue);
+}
+
+.chip--active:hover {
+  background: var(--apple-blue);
+  opacity: 0.9;
+}
+
+/* Chip inline en celdas de tabla */
+.chip--category {
+  cursor: default;
+  font-size: 12px;
+  padding: 3px 9px;
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  border-color: var(--border-divider);
+}
+
+/* ==========================================================================
+   COMPONENTES: BADGE STOCK BAJO
+   ========================================================================== */
+.badge-low-stock {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-text);
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(255, 59, 48, 0.12);
+  color: var(--color-danger);
+  white-space: nowrap;
+}
+
+/* Fila con stock bajo — tinte sutil */
+.row-low-stock {
+  background: rgba(255, 59, 48, 0.04) !important;
+}
+
+/* ==========================================================================
+   COMPONENTES: TABLA ORDENABLE
+   ========================================================================== */
+.sortable-th {
+  transition: color 0.15s ease;
+}
+
+.sortable-th:hover {
+  color: var(--text-primary);
+}
+
+/* ==========================================================================
+   COMPONENTES: TABLA — SCROLL FADE + STICKY COLUMN
+   ========================================================================== */
+
+/* Fade indicator — muestra que hay contenido a la derecha */
+.table-scroll-container {
+  position: relative;
+}
+
+.table-scroll-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 48px;
+  background: linear-gradient(to right, transparent, var(--bg-card));
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.25s ease;
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+}
+
+.table-scroll-container.at-end::after {
+  opacity: 0;
+}
+
+/* Columna sticky — Nombre queda fijo al hacer scroll */
+.sticky-col {
+  position: sticky;
+  left: 0;
+  background: var(--bg-card);
+  z-index: 1;
+  box-shadow: 2px 0 6px -2px rgba(0, 0, 0, 0.08);
+}
+
+/* El header sticky necesita z-index mayor para quedar sobre celdas */
+.sticky-col--head {
+  z-index: 2;
+  background: var(--bg-card);
+}
+
+/* Fila low-stock: sticky cell hereda el tinte */
+.row-low-stock .sticky-col {
+  background: color-mix(in srgb, var(--bg-card) 96%, var(--color-danger) 4%);
 }
 
 /* ==========================================================================
@@ -510,17 +753,33 @@ a {
 }
 
 /* ==========================================================================
+   COMPONENTES: SIDEBAR — USER ROW (bottom)
+   ========================================================================== */
+.sidebar-user-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 0.15s ease;
+}
+
+/* ==========================================================================
    COMPONENTES: SIDEBAR (Barra Lateral)
    ========================================================================== */
 .sidebar {
   background-color: var(--bg-sidebar);
   width: 220px;
   height: 100vh;
+  height: 100svh;           /* iOS Safari 15.4+: excluye chrome del browser */
   position: fixed;
   left: 0;
   top: 0;
   padding: 0;
-  overflow-y: auto;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   border-right: 1px solid var(--border-divider);
   z-index: 90;
   transition: background-color 0.3s ease, transform 0.3s ease;
@@ -790,6 +1049,65 @@ input[type='date'].form-input {
   background-position: right 14px center;
   background-size: 16px;
   padding-right: 40px;
+}
+
+/* ==========================================================================
+   PÁGINA: CONFIGURACIÓN
+   ========================================================================== */
+
+/* Grid PC: nav lateral + panel contenido */
+.settings-layout {
+  display: grid;
+  grid-template-columns: 188px 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+/* Nav izquierdo — sticky bajo el header */
+.settings-nav {
+  position: sticky;
+  top: 72px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Ítem del nav */
+.settings-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: var(--radius-md);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--font-text);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-align: left;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  user-select: none;
+}
+
+.settings-nav-item:hover {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+.settings-nav-item--active {
+  background: var(--bg-surface);
+  color: var(--apple-blue);
+  font-weight: 600;
+}
+
+/* Mobile: colapsa a single-column */
+@media (max-width: 640px) {
+  .settings-layout {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ==========================================================================
@@ -1145,6 +1463,64 @@ main {
   .login-form-container {
     max-width: 100%;
   }
+}
+
+/* ==========================================================================
+   APARIENCIA — Densidad, Fondos, Animaciones
+   ========================================================================== */
+
+/* Density — compact */
+html.density-compact { --density-cell-v: 7px; --density-cell-h: 12px; --density-row-v: 8px; --density-row-h: 12px; --density-card: 12px; }
+html.density-compact td, html.density-compact th { padding-top: var(--density-cell-v) !important; padding-bottom: var(--density-cell-v) !important; }
+html.density-compact .card { padding: var(--density-card) !important; }
+html.density-compact .nav-pill { padding: 6px 10px !important; }
+html.density-compact .settings-nav-item { padding: 6px 10px !important; }
+html.density-compact .btn { padding: 6px 12px !important; }
+
+/* Density — normal (default vars) */
+html.density-normal, :root { --density-cell-v: 12px; --density-cell-h: 16px; --density-row-v: 12px; --density-row-h: 16px; --density-card: 20px; }
+
+/* Density — spacious */
+html.density-spacious { --density-cell-v: 18px; --density-cell-h: 20px; --density-row-v: 16px; --density-row-h: 20px; --density-card: 28px; }
+html.density-spacious td, html.density-spacious th { padding-top: var(--density-cell-v) !important; padding-bottom: var(--density-cell-v) !important; }
+html.density-spacious .card { padding: var(--density-card) !important; }
+html.density-spacious .nav-pill { padding: 12px 16px !important; }
+html.density-spacious .settings-nav-item { padding: 12px 16px !important; }
+html.density-spacious .btn { padding: 12px 20px !important; }
+
+/* Background patterns */
+html.bg-dots body {
+  background-image: radial-gradient(circle, rgba(0,0,0,0.055) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+html.bg-dots.dark-theme body {
+  background-image: radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+html.bg-grid body {
+  background-image:
+    linear-gradient(rgba(0,0,0,0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.045) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+html.bg-grid.dark-theme body {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+html.bg-grad body {
+  background: linear-gradient(145deg, #f0f5ff 0%, var(--bg-page) 55%, #f5f0ff 100%);
+}
+html.bg-grad.dark-theme body {
+  background: linear-gradient(145deg, #08101a 0%, #000000 55%, #0e0812 100%);
+}
+
+/* Reduce motion (manual toggle) */
+html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
 }
 
 /* ── Small: phones 480–767px ── */
