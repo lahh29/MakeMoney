@@ -44,7 +44,7 @@ export function Sidebar({ children, isOpen = true, isDark, toggleTheme, onLogout
           </div>
 
           {/* User section — pinned bottom */}
-          <div style={{ borderTop: '1px solid var(--border-divider)', flexShrink: 0, paddingBottom: 'env(safe-area-inset-bottom)' }}>
+          <div style={{ borderTop: '1px solid var(--border-divider)', flexShrink: 0 }}>
 
             {/* Action buttons — expand upward */}
             <AnimatePresence>
