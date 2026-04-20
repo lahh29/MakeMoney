@@ -10,7 +10,6 @@ import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
 import { useAuth } from '../hooks/useAuth';
 import { useNotification } from '../components/ui/Notification';
-import { supabase } from '../lib/supabase';
 import { fetchUserSettings, saveEmpresa as saveEmpresaRemote } from '../lib/settings';
 import {
   useAppearance,
@@ -245,19 +244,36 @@ function SectionPerfil({ user, updateProfile }) {
     setUploadingPhoto(true);
     try {
       const ext = file.name.split('.').pop();
-      const filePath = `avatars/${user.id}.${ext}`;
+      const objectPath = `${user.id}.${ext}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, file, { upsert: true, contentType: file.type });
+      // Direct REST upload — bypass SDK getSession deadlock
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      const storageKey = `sb-${new URL(supabaseUrl).hostname.split('.')[0]}-auth-token`;
+      const token = JSON.parse(localStorage.getItem(storageKey))?.access_token;
 
-      if (uploadError) throw uploadError;
+      if (!token) throw new Error('Sesión expirada. Vuelve a iniciar sesión.');
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(filePath);
+      const uploadRes = await fetch(
+        `${supabaseUrl}/storage/v1/object/avatars/${objectPath}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'apikey': anonKey,
+            'Content-Type': file.type,
+            'x-upsert': 'true',
+          },
+          body: file,
+        }
+      );
 
-      // Append cache-buster to force refresh
+      if (!uploadRes.ok) {
+        const err = await uploadRes.json().catch(() => ({}));
+        throw new Error(err.message || err.error || `Error ${uploadRes.status}`);
+      }
+
+      const publicUrl = `${supabaseUrl}/storage/v1/object/public/avatars/${objectPath}`;
       const url = `${publicUrl}?t=${Date.now()}`;
       await updateProfile({ avatar_url: url });
       notify.success('Foto de perfil actualizada.');
@@ -265,7 +281,6 @@ function SectionPerfil({ user, updateProfile }) {
       notify.error(err.message ?? 'Error al subir foto.');
     } finally {
       setUploadingPhoto(false);
-      // Reset input so same file can be re-selected
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
