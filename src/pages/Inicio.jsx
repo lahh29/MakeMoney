@@ -26,8 +26,8 @@ const staggerContainer = {
 };
 
 const fadeUp = {
-  hidden:  { opacity: 0, y: 14, scale: 0.97 },
-  visible: { opacity: 1, y: 0,  scale: 1,   transition: { type: 'spring', stiffness: 360, damping: 28 } },
+  hidden:  { opacity: 0, x: 24, scale: 0.97 },
+  visible: { opacity: 1, x: 0,  scale: 1,   transition: { type: 'spring', stiffness: 360, damping: 28 } },
 };
 
 function StatCard({ label, value, color, bg, Icon, onClick }) {
@@ -158,7 +158,18 @@ export function Inicio() {
     }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  // Run when user is ready (avoids race after fresh login)
+  useEffect(() => {
+    if (!user?.id) return;
+    load();
+  }, [user?.id, load]);
+
+  // Refetch when tab regains focus
+  useEffect(() => {
+    const onFocus = () => { if (user?.id) load(); };
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, [user?.id, load]);
 
   const stats = useMemo(() => ({
     total:      compromisos.length,
@@ -176,8 +187,8 @@ export function Inicio() {
     <Box style={{ padding: '32px 24px', maxWidth: '900px' }}>
       {/* Saludo */}
       <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, x: 24 }}
+        animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.3 }}
         style={{ marginBottom: '32px' }}
       >

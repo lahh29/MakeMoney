@@ -684,9 +684,9 @@ function EmpleadoEditor() {
         <AnimatePresence>
           {selected && (
             <motion.div
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
+              initial={{ opacity: 0, x: 16 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -16 }}
               transition={{ duration: 0.2 }}
               style={{
                 background: 'var(--bg-surface)', borderRadius: 'var(--radius-md)',
@@ -1058,9 +1058,9 @@ export function Configuracion() {
               <AnimatePresence mode="wait">
                 <motion.div
                   key={active}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
+                  initial={{ opacity: 0, x: 16 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -16 }}
                   transition={{ duration: 0.16, ease: 'easeOut' }}
                 >
                   <SectionContent id={active} {...sharedProps} />

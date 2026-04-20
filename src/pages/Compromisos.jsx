@@ -16,6 +16,7 @@ import { useNotification } from '../components/ui/Notification';
 import { getCompromisos, createCompromiso } from '../lib/compromisos';
 import { getEmpleado, getGrupos } from '../lib/empleados';
 import { useHeaderActions } from '../hooks/useHeaderActions';
+import { useAuth } from '../hooks/useAuth';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -31,9 +32,9 @@ const containerVariants = {
 };
 
 const cardVariants = {
-  hidden:  { opacity: 0, y: 14, scale: 0.97 },
-  visible: { opacity: 1, y: 0,  scale: 1,   transition: { type: 'spring', stiffness: 360, damping: 28 } },
-  exit:    { opacity: 0, scale: 0.94, transition: { duration: 0.15 } },
+  hidden:  { opacity: 0, x: 24, scale: 0.97 },
+  visible: { opacity: 1, x: 0,  scale: 1,   transition: { type: 'spring', stiffness: 360, damping: 28 } },
+  exit:    { opacity: 0, x: -24, scale: 0.94, transition: { duration: 0.15 } },
 };
 
 const FRECUENCIAS = [
@@ -433,6 +434,7 @@ function NuevoCompromisoModal({ isOpen, onClose, onCreated }) {
 export function Compromisos() {
   const navigate = useNavigate();
   const setHeaderActions = useHeaderActions();
+  const { user } = useAuth();
   const [compromisos, setCompromisos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('todos');
@@ -453,11 +455,23 @@ export function Compromisos() {
     }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  // Run when user is ready (avoids race after fresh login)
+  useEffect(() => {
+    if (!user?.id) return;
+    load();
+  }, [user?.id, load]);
+
+  // Refetch when tab regains focus
+  useEffect(() => {
+    const onFocus = () => { if (user?.id) load(); };
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, [user?.id, load]);
 
   useEffect(() => {
+    if (!user?.id) return;
     getGrupos().then(g => setGrupos(g)).catch(() => {});
-  }, []);
+  }, [user?.id]);
 
   useEffect(() => {
     setHeaderActions(

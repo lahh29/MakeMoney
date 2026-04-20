@@ -10,7 +10,6 @@ import { PlaneTransition } from './components/ui/PlaneTransition';
 function AppContent() {
   const { isAuthenticated, loading, signOut } = useAuth();
   const [showPlane, setShowPlane] = useState(false);
-  const transitionDir = useRef(null);
   const prevAuth = useRef(null);
   const signOutRef = useRef(signOut);
   signOutRef.current = signOut;
@@ -23,7 +22,6 @@ function AppContent() {
       return;
     }
     if (isAuthenticated && !prevAuth.current) {
-      transitionDir.current = 'login';
       setShowPlane(true);
     }
     prevAuth.current = isAuthenticated;
@@ -31,14 +29,12 @@ function AppContent() {
 
   // Logout — plane plays over auth state change
   const handleLogout = useCallback(() => {
-    transitionDir.current = 'logout';
     setShowPlane(true);
     signOutRef.current().catch(e => console.error('Logout error:', e));
   }, []);
 
   const handleTransitionComplete = useCallback(() => {
     setShowPlane(false);
-    transitionDir.current = null;
   }, []);
 
   if (loading) {
@@ -60,7 +56,7 @@ function AppContent() {
 
   return (
     <>
-      <PlaneTransition isActive={showPlane} direction={transitionDir.current} onComplete={handleTransitionComplete} />
+      <PlaneTransition isActive={showPlane} onComplete={handleTransitionComplete} />
       <Routes>
         {isAuthenticated ? (
           <Route path="/*" element={<Home onLogout={handleLogout} />} />

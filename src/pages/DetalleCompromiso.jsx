@@ -92,8 +92,8 @@ function RegistroItem({ registro }) {
   const formatted = date.toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
   return (
     <motion.div
-      initial={{ opacity: 0, y: 4 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, x: 16 }}
+      animate={{ opacity: 1, x: 0 }}
       style={{
         display: 'flex', gap: '12px', alignItems: 'flex-start',
         padding: '12px 0',
@@ -316,7 +316,8 @@ function DeleteModal({ isOpen, onClose, onConfirm, saving }) {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
-export function DetalleCompromiso({ setHeaderActions }) {
+export function DetalleCompromiso() {
+  const setHeaderActions = useHeaderActions();
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -351,7 +352,18 @@ export function DetalleCompromiso({ setHeaderActions }) {
     }
   }, [id]);
 
-  useEffect(() => { load(); }, [load]);
+  // Run when user is ready (avoids race after fresh login)
+  useEffect(() => {
+    if (!user?.id) return;
+    load();
+  }, [user?.id, load]);
+
+  // Refetch when tab regains focus
+  useEffect(() => {
+    const onFocus = () => { if (user?.id) load(); };
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, [user?.id, load]);
 
   useEffect(() => {
     setHeaderActions(null);

@@ -1575,17 +1575,17 @@ input[type='date'].form-input {
 }
 
 /* ==========================================================================
-   APERTURE TRANSITION (Login / Logout)
-   Apple-style camera-lens reveal with breathing logo + greeting.
+   PLANE TRANSITION (Login / Logout)
+   Airplane fly-by + trail dots + circle wipe reveal.
    ========================================================================== */
-.aperture-overlay {
+.plane-transition-overlay {
   position: fixed;
   inset: 0;
   z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--login-bg);
+  background: var(--bg-page);
   overflow: hidden;
   pointer-events: all;
   /* Respect notch / home indicator */
@@ -1593,48 +1593,51 @@ input[type='date'].form-input {
            env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
-.aperture-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: clamp(12px, 2vw, 20px);
-  text-align: center;
-  user-select: none;
+.plane-icon {
+  position: absolute;
+  color: var(--apple-blue);
+  filter: drop-shadow(0 4px 20px var(--apple-blue-glow));
+  z-index: 2;
   will-change: transform, opacity;
 }
 
-.aperture-logo {
-  width: clamp(56px, 12vw, 88px);
-  height: clamp(56px, 12vw, 88px);
-  border-radius: 22%;
-  background: var(--brand-gradient);
-  color: var(--login-hero-text);
+.plane-icon svg {
+  transform: rotate(-45deg);
+}
+
+.plane-trail {
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-display);
-  font-size: clamp(24px, 5vw, 36px);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  box-shadow: var(--brand-shadow);
-  will-change: transform;
+  gap: clamp(10px, 2vw, 18px);
+  z-index: 1;
 }
 
-.aperture-greeting {
-  margin: 0;
-  color: var(--login-hero-text);
-  font-family: var(--font-display);
-  font-size: clamp(28px, 5.5vw, 56px);
-  font-weight: 600;
-  line-height: 1.07;
-  letter-spacing: -0.02em;
+.plane-trail-dot {
+  width: clamp(6px, 1vw, 8px);
+  height: clamp(6px, 1vw, 8px);
+  border-radius: var(--radius-circle);
+  background: var(--apple-blue);
+  opacity: 0;
+}
+
+.plane-circle-wipe {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-circle);
+  background: var(--apple-blue);
+  z-index: 3;
+  will-change: transform, opacity;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .aperture-overlay,
-  .aperture-content,
-  .aperture-logo {
+  .plane-transition-overlay,
+  .plane-icon,
+  .plane-trail-dot,
+  .plane-circle-wipe {
     animation: none !important;
     transition: opacity 0.2s ease !important;
   }
