@@ -1,18 +1,21 @@
 ﻿import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  IconUser, IconBuildingStore, IconPalette, IconShield,
+  IconUser, IconPalette, IconShield,
   IconChevronRight, IconSun, IconMoon, IconLock, IconLogout,
   IconEye, IconEyeOff, IconBolt, IconRefresh, IconCamera,
-  IconUsers, IconUpload, IconCircleCheck, IconAlertCircle,
+  IconUsers, IconUserPlus, IconCheck,
+  IconSearch, IconPencil,
 } from '@tabler/icons-react';
-import { bulkCreateEmpleados } from '../lib/empleados';
+import { createEmpleado, searchEmpleados, updateEmpleadoTurnoGrupo } from '../lib/empleados';
+import { TURNOS, GRUPOS } from '../lib/catalogo';
+import { useHeaderActions } from '../hooks/useHeaderActions';
 import { Box } from '../components/ui/Box';
 import { Input } from '../components/ui/Input';
+import { Select } from '../components/ui/Select';
 import { Button } from '../components/ui/Button';
 import { useAuth } from '../hooks/useAuth';
 import { useNotification } from '../components/ui/Notification';
-import { fetchUserSettings, saveEmpresa as saveEmpresaRemote } from '../lib/settings';
 import {
   useAppearance,
   ACCENTS, FONT_FAMILIES, FONT_SIZES,
@@ -22,12 +25,9 @@ import {
 const SECTIONS = [
   { id: 'perfil',     label: 'Perfil',      icon: IconUser          },
   { id: 'apariencia', label: 'Apariencia',  icon: IconPalette       },
-  { id: 'empresa',    label: 'Empresa',     icon: IconBuildingStore  },
   { id: 'empleados',  label: 'Empleados',   icon: IconUsers          },
   { id: 'seguridad',  label: 'Seguridad',   icon: IconShield         },
 ];
-
-const EMPRESA_KEY = 'postsell-empresa';
 
 // ─── Appearance sub-components ────────────────────────────────────────────────
 function ColorSwatch({ color, name, active, onClick }) {
@@ -127,7 +127,7 @@ function Toggle({ checked, onChange }) {
         style={{
           position: 'absolute', top: '3px',
           width: '20px', height: '20px', borderRadius: 'var(--radius-circle)',
-          background: '#ffffff', boxShadow: 'var(--shadow-toggle)',
+          background: 'var(--text-light)', boxShadow: 'var(--shadow-toggle)',
         }}
       />
     </div>
@@ -299,7 +299,7 @@ function SectionPerfil({ user, updateProfile }) {
             width: '64px', height: '64px', borderRadius: '50%',
             background: avatarUrl ? 'none' : 'linear-gradient(135deg, var(--apple-blue), var(--apple-blue-light))',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: '#fff', fontSize: '24px', fontWeight: 700,
+            color: 'var(--text-on-accent)', fontSize: '24px', fontWeight: 700,
             boxShadow: 'var(--shadow-blue)', flexShrink: 0,
             position: 'relative', cursor: 'pointer', overflow: 'hidden',
           }}
@@ -316,14 +316,14 @@ function SectionPerfil({ user, updateProfile }) {
           {/* Hover overlay */}
           <div style={{
             position: 'absolute', inset: 0, borderRadius: '50%',
-            background: 'rgba(0,0,0,0.4)', display: 'flex',
+            background: 'var(--bg-overlay)', display: 'flex',
             alignItems: 'center', justifyContent: 'center',
             opacity: uploadingPhoto ? 1 : 0,
             transition: 'opacity 0.15s ease',
           }}
             className="avatar-overlay"
           >
-            <IconCamera size={20} color="#fff" />
+            <IconCamera size={20} color="var(--text-on-accent)" />
           </div>
           <input
             ref={fileInputRef}
@@ -468,69 +468,7 @@ function SectionApariencia() {
   );
 }
 
-// Sección: Empresa
-function SectionEmpresa() {
-  const { user } = useAuth();
-  const notify = useNotification();
-  const [form, setForm] = useState({ nombre: '', rfc: '', direccion: '' });
-  const [loading, setLoading] = useState(false);
-  const [fetching, setFetching] = useState(true);
-  const set = f => e => setForm(p => ({ ...p, [f]: e.target.value }));
-
-  // Load from Supabase on mount, fallback to localStorage
-  useEffect(() => {
-    if (!user?.id) { setFetching(false); return; }
-    fetchUserSettings(user.id).then(data => {
-      if (data?.empresa) {
-        setForm(data.empresa);
-        localStorage.setItem(EMPRESA_KEY, JSON.stringify(data.empresa));
-      } else {
-        try {
-          const raw = localStorage.getItem(EMPRESA_KEY);
-          if (raw) setForm(JSON.parse(raw));
-        } catch { /* ignore */ }
-      }
-    }).catch(() => {
-      try {
-        const raw = localStorage.getItem(EMPRESA_KEY);
-        if (raw) setForm(JSON.parse(raw));
-      } catch { /* ignore */ }
-    }).finally(() => setFetching(false));
-  }, [user?.id]);
-
-  const handleSave = async () => {
-    setLoading(true);
-    try {
-      localStorage.setItem(EMPRESA_KEY, JSON.stringify(form));
-      if (user?.id) {
-        const ok = await saveEmpresaRemote(user.id, form);
-        if (!ok) throw new Error('Error al guardar en servidor.');
-      }
-      notify.success('Datos de empresa guardados.');
-    } catch (err) {
-      notify.error(err.message ?? 'No se pudo guardar.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <SettingsGroup title="Datos del negocio">
-      <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        <Input label="Nombre de la empresa" value={form.nombre} onChange={set('nombre')} placeholder="Vertx Systems" />
-        <Input label="RFC" value={form.rfc} onChange={set('rfc')} placeholder="ABC123456XXX" />
-        <Input label="Dirección" value={form.direccion} onChange={set('direccion')} placeholder="Calle, Ciudad" />
-      </div>
-      <div style={{ padding: '0 16px 16px', display: 'flex', justifyContent: 'flex-end' }}>
-        <Button variant="primary" onClick={handleSave} loading={loading} disabled={fetching}>
-          Guardar cambios
-        </Button>
-      </div>
-    </SettingsGroup>
-  );
-}
-
-//  Sección: Seguridad
+// Sección: Seguridad
 function SectionSeguridad({ onSignOut, updatePassword }) {
   const notify = useNotification();
   const [showForm,  setShowForm]  = useState(false);
@@ -634,151 +572,393 @@ function SectionSeguridad({ onSignOut, updatePassword }) {
   );
 }
 
-// ─── Sección: Empleados (carga temporal via JSON) ─────────────────────────────
-function SectionEmpleados() {
-  const notify   = useNotification();
-  const fileRef  = useRef(null);
-  const [preview,  setPreview]  = useState(null);  // { count, sample[] }
-  const [loading,  setLoading]  = useState(false);
-  const [result,   setResult]   = useState(null);  // { inserted, total } | { error }
+// ─── Editor individual de turno/grupo ───────────────────────────────────────
+function EmpleadoEditor() {
+  const notify         = useNotification();
+  const timerRef       = useRef(null);
+  const [query,        setQuery]        = useState('');
+  const [results,      setResults]      = useState([]);
+  const [searching,    setSearching]    = useState(false);
+  const [selected,     setSelected]     = useState(null); // empleado object
+  const [editForm,     setEditForm]     = useState({ turno: '', grupo: '' });
+  const [saving,       setSaving]       = useState(false);
 
-  const handleFile = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setResult(null);
-    const reader = new FileReader();
-    reader.onload = (ev) => {
+  const handleQuery = (e) => {
+    const val = e.target.value;
+    setQuery(val);
+    setSelected(null);
+    setResults([]);
+    clearTimeout(timerRef.current);
+    if (val.trim().length < 2) return;
+    timerRef.current = setTimeout(async () => {
+      setSearching(true);
       try {
-        const parsed = JSON.parse(ev.target.result);
-        if (!Array.isArray(parsed)) throw new Error('El JSON debe ser un arreglo [ ... ]');
-        setPreview({ count: parsed.length, data: parsed, sample: parsed.slice(0, 3) });
-      } catch (err) {
-        notify.error(err.message ?? 'JSON inválido.');
-        setPreview(null);
-      }
-    };
-    reader.readAsText(file);
-    if (fileRef.current) fileRef.current.value = '';
+        const res = await searchEmpleados(val.trim());
+        setResults(res);
+      } catch { setResults([]); }
+      finally { setSearching(false); }
+    }, 400);
   };
 
-  const handleUpload = async () => {
-    if (!preview?.data) return;
-    setLoading(true);
-    setResult(null);
+  const handleSelect = (emp) => {
+    setSelected(emp);
+    setEditForm({ turno: emp.turno ?? '', grupo: emp.grupo ?? '' });
+    setResults([]);
+    setQuery(emp.nombre);
+  };
+
+  const handleSave = async () => {
+    if (!selected) return;
+    setSaving(true);
     try {
-      const timeout = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Tiempo de espera agotado (15s). Verifica que la tabla "empleados" exista en Supabase y que el proyecto no esté pausado.')), 15000)
-      );
-      const res = await Promise.race([bulkCreateEmpleados(preview.data), timeout]);
-      setResult(res);
-      setPreview(null);
-      notify.success(`${res.inserted} empleados cargados correctamente.`);
-    } catch (err) {
-      const msg = err.message ?? 'Error al cargar empleados.';
-      setResult({ error: msg });
-      notify.error(msg);
+      const updated = await updateEmpleadoTurnoGrupo(selected.numero_empleado, editForm);
+      setSelected(updated);
+      notify.success('Empleado actualizado.');
+    } catch (e) {
+      notify.error(e.message ?? 'Error al actualizar.');
+    } finally { setSaving(false); }
+  };
+
+  return (
+    <SettingsGroup title="Editar empleado">
+      <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+
+        {/* Search */}
+        <div style={{ position: 'relative' }}>
+          {searching
+            ? <IconSearch size={15} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--apple-blue)', animation: 'pulse 1s ease infinite', pointerEvents: 'none' }} />
+            : <IconSearch size={15} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-tertiary)', pointerEvents: 'none' }} />
+          }
+          <input
+            className="form-input"
+            placeholder="Buscar por nombre o núm. empleado…"
+            value={query}
+            onChange={handleQuery}
+            style={{ paddingLeft: '34px', width: '100%', boxSizing: 'border-box' }}
+          />
+        </div>
+
+        {/* Results dropdown */}
+        <AnimatePresence>
+          {results.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.15 }}
+              style={{
+                background: 'var(--bg-card)', borderRadius: 'var(--radius-md)',
+                border: '1px solid var(--border-divider)', overflow: 'hidden',
+                boxShadow: 'var(--shadow-float)',
+              }}
+            >
+              {results.map((emp, i) => (
+                <div
+                  key={emp.numero_empleado}
+                  onClick={() => handleSelect(emp)}
+                  style={{
+                    padding: '10px 14px', cursor: 'pointer',
+                    borderBottom: i < results.length - 1 ? '1px solid var(--border-divider)' : 'none',
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    gap: '8px',
+                    transition: 'background 0.1s ease',
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-surface)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                >
+                  <div style={{ minWidth: 0 }}>
+                    <p style={{ margin: 0, fontSize: 'var(--fs-body)', fontWeight: 500, color: 'var(--text-primary)', fontFamily: 'var(--font-text)' }}>{emp.nombre}</p>
+                    <p style={{ margin: 0, fontSize: 'var(--fs-xs)', color: 'var(--text-tertiary)', fontFamily: 'var(--font-text)' }}>#{emp.numero_empleado} · {emp.puesto}</p>
+                  </div>
+                  <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
+                    <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-tertiary)', fontFamily: 'var(--font-text)', padding: '2px 8px', borderRadius: 'var(--radius-pill)', background: 'var(--bg-surface)', border: '1px solid var(--border-divider)' }}>T{emp.turno}</span>
+                    <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--apple-blue)', fontFamily: 'var(--font-text)', padding: '2px 8px', borderRadius: 'var(--radius-pill)', background: 'var(--apple-blue-bg)', border: '1px solid var(--apple-blue-border)' }}>Gr.{emp.grupo}</span>
+                  </div>
+                </div>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Edit form */}
+        <AnimatePresence>
+          {selected && (
+            <motion.div
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              style={{
+                background: 'var(--bg-surface)', borderRadius: 'var(--radius-md)',
+                border: '1px solid var(--border-divider)', padding: '14px 16px',
+                display: 'flex', flexDirection: 'column', gap: '12px',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <IconPencil size={14} color="var(--apple-blue)" />
+                <p style={{ margin: 0, fontSize: 'var(--fs-sm)', fontWeight: 600, color: 'var(--text-primary)', fontFamily: 'var(--font-text)' }}>
+                  {selected.nombre} <span style={{ color: 'var(--text-tertiary)', fontWeight: 400 }}>#{selected.numero_empleado}</span>
+                </p>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <div className="form-group">
+                  <label className="form-label">Turno</label>
+                  <input
+                    className="form-input"
+                    value={editForm.turno}
+                    onChange={e => setEditForm(prev => ({ ...prev, turno: e.target.value }))}
+                    placeholder="Ej: Matutino"
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Grupo</label>
+                  <input
+                    className="form-input"
+                    value={editForm.grupo}
+                    onChange={e => setEditForm(prev => ({ ...prev, grupo: e.target.value }))}
+                    placeholder="Ej: A"
+                  />
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                <Button variant="pill" onClick={() => { setSelected(null); setQuery(''); }}>Cancelar</Button>
+                <Button variant="primary" onClick={handleSave} loading={saving}>Guardar</Button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </SettingsGroup>
+  );
+}
+
+// ─── Sección: Crear empleado (step form) ─────────────────────────────────────
+const CREATE_STEPS = [
+  { id: 'identificacion', title: 'Identificación' },
+  { id: 'puesto',         title: 'Puesto' },
+  { id: 'asignacion',     title: 'Asignación' },
+];
+
+const TURNO_LABELS = {
+  '1': 'Matutino',
+  '2': 'Vespertino',
+  '3': 'Nocturno',
+  '4': 'Mixto',
+};
+
+const TURNO_OPTIONS = TURNOS.map(t => ({
+  value: t,
+  label: `Turno ${t}${TURNO_LABELS[t] ? ` — ${TURNO_LABELS[t]}` : ''}`,
+}));
+
+const GRUPO_OPTIONS = GRUPOS.map(g => ({ value: g, label: `Grupo ${g}` }));
+
+const EMPTY_EMPLEADO = {
+  numero_empleado: '',
+  nombre: '',
+  puesto: '',
+  departamento: '',
+  turno: '1',
+  grupo: 'A',
+};
+
+function StepIndicator({ steps, current }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      {steps.map((s, i) => {
+        const isActive = i === current;
+        const isDone   = i < current;
+        return (
+          <React.Fragment key={s.id}>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '8px',
+              padding: '6px 12px', borderRadius: 'var(--radius-pill)',
+              background: isActive ? 'var(--apple-blue)' : isDone ? 'var(--apple-blue-bg)' : 'var(--bg-input)',
+              color:      isActive ? 'var(--text-on-accent)' : isDone ? 'var(--apple-blue)' : 'var(--text-tertiary)',
+              fontSize: 'var(--fs-sm)', fontFamily: 'var(--font-text)',
+              fontWeight: isActive ? 600 : 500,
+              transition: 'background 0.2s ease, color 0.2s ease',
+              whiteSpace: 'nowrap',
+            }}>
+              <span style={{
+                width: '18px', height: '18px', borderRadius: '50%',
+                background: isActive ? 'var(--bg-highlight-soft)' : 'transparent',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 'var(--fs-xs)', fontWeight: 700,
+              }}>
+                {isDone ? <IconCheck size={12} /> : i + 1}
+              </span>
+              <span>{s.title}</span>
+            </div>
+            {i < steps.length - 1 && (
+              <div style={{
+                flex: 1, minWidth: '12px', height: '2px',
+                background: isDone ? 'var(--apple-blue)' : 'var(--border-divider)',
+                borderRadius: '1px', transition: 'background 0.2s ease',
+              }} />
+            )}
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
+}
+
+function EmpleadoCreator() {
+  const notify = useNotification();
+  const [step,   setStep]   = useState(0);
+  const [form,   setForm]   = useState(EMPTY_EMPLEADO);
+  const [saving, setSaving] = useState(false);
+
+  const update = (k, v) => setForm(prev => ({ ...prev, [k]: v }));
+
+  const validateStep = () => {
+    if (step === 0) {
+      if (!form.numero_empleado.trim()) return 'Número de empleado requerido.';
+      if (!form.nombre.trim())          return 'Nombre requerido.';
+    }
+    return null;
+  };
+
+  const next = () => {
+    const err = validateStep();
+    if (err) return notify.error(err);
+    setStep(s => Math.min(s + 1, CREATE_STEPS.length - 1));
+  };
+
+  const back = () => setStep(s => Math.max(s - 1, 0));
+
+  const reset = () => {
+    setForm(EMPTY_EMPLEADO);
+    setStep(0);
+  };
+
+  const submit = async () => {
+    const err = validateStep();
+    if (err) return notify.error(err);
+    setSaving(true);
+    try {
+      const created = await createEmpleado(form);
+      notify.success(`Empleado ${created.nombre} creado correctamente.`);
+      reset();
+    } catch (e) {
+      notify.error(e.message ?? 'Error al crear empleado.');
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
   return (
-    <>
-      <SettingsGroup title="Carga masiva">
-        <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <p style={{ fontSize: 'var(--fs-sm)', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.5 }}>
-            Selecciona un archivo <code>.json</code> con un arreglo de empleados.
-            Campos requeridos: <code>numero_empleado</code>, <code>nombre</code>.
-            Opcionales: <code>puesto</code>, <code>departamento</code>, <code>turno</code> (1–4), <code>grupo</code> (A/B).
-          </p>
+    <SettingsGroup title="Crear empleado">
+      <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
-          {/* JSON ejemplo */}
-          <pre style={{
-            background: 'var(--bg-input)', borderRadius: 'var(--radius-sm)',
-            padding: '10px 12px', fontSize: 'var(--fs-xs)',
-            color: 'var(--text-tertiary)', overflowX: 'auto', margin: 0,
-            border: '1px solid var(--border-divider)', fontFamily: 'monospace',
-          }}>{`[\n  {\n    "numero_empleado": "001",\n    "nombre": "Juan López",\n    "puesto": "Asesor",\n    "departamento": "Ventas",\n    "turno": "1",\n    "grupo": "A"\n  }\n]`}</pre>
+        <StepIndicator steps={CREATE_STEPS} current={step} />
 
-          <input
-            ref={fileRef}
-            type="file"
-            accept=".json,application/json"
-            onChange={handleFile}
-            style={{ display: 'none' }}
-          />
-
-          <button
-            onClick={() => fileRef.current?.click()}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '8px',
-              padding: '10px 16px', borderRadius: 'var(--radius-pill)',
-              border: '1.5px dashed var(--border-divider)',
-              background: 'var(--bg-input)', cursor: 'pointer',
-              color: 'var(--apple-blue)', fontSize: 'var(--fs-body)',
-              fontFamily: 'var(--font-text)', fontWeight: 500,
-              transition: 'border-color 0.15s ease',
-              minHeight: 'unset', minWidth: 'unset',
-            }}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={step}
+            initial={{ opacity: 0, x: 8 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -8 }}
+            transition={{ duration: 0.18 }}
+            style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}
           >
-            <IconUpload size={16} />
-            Seleccionar archivo JSON
-          </button>
+            {step === 0 && (
+              <>
+                <Input
+                  label="Número de empleado"
+                  value={form.numero_empleado}
+                  onChange={e => update('numero_empleado', e.target.value)}
+                  placeholder="Ej: 001"
+                  autoFocus
+                />
+                <Input
+                  label="Nombre completo"
+                  value={form.nombre}
+                  onChange={e => update('nombre', e.target.value)}
+                  placeholder="Ej: Juan López"
+                />
+              </>
+            )}
 
-          {/* Vista previa */}
-          {preview && (
-            <motion.div
-              initial={{ opacity: 0, y: -6 }}
-              animate={{ opacity: 1, y: 0 }}
-              style={{
-                background: 'var(--apple-blue-bg)', borderRadius: 'var(--radius-md)',
-                padding: '12px 14px', border: '1px solid var(--apple-blue)',
-                display: 'flex', flexDirection: 'column', gap: '6px',
-              }}
-            >
-              <p style={{ margin: 0, fontWeight: 600, color: 'var(--apple-blue)', fontSize: 'var(--fs-body)' }}>
-                {preview.count} empleado{preview.count !== 1 ? 's' : ''} detectados
-              </p>
-              {preview.sample.map((e, i) => (
-                <p key={i} style={{ margin: 0, fontSize: 'var(--fs-sm)', color: 'var(--text-secondary)' }}>
-                  {e.numero_empleado} — {e.nombre}
-                </p>
-              ))}
-              {preview.count > 3 && (
-                <p style={{ margin: 0, fontSize: 'var(--fs-xs)', color: 'var(--text-tertiary)' }}>
-                  …y {preview.count - 3} más
-                </p>
-              )}
-              <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
-                <Button variant="pill" onClick={() => setPreview(null)}>Cancelar</Button>
-                <Button variant="primary" onClick={handleUpload} loading={loading}>
-                  Cargar {preview.count} empleados
-                </Button>
-              </div>
-            </motion.div>
-          )}
+            {step === 1 && (
+              <>
+                <Input
+                  label="Puesto"
+                  value={form.puesto}
+                  onChange={e => update('puesto', e.target.value)}
+                  placeholder="Ej: Asesor"
+                />
+                <Input
+                  label="Departamento"
+                  value={form.departamento}
+                  onChange={e => update('departamento', e.target.value)}
+                  placeholder="Ej: Ventas"
+                />
+              </>
+            )}
 
-          {/* Resultado */}
-          {result && !result.error && (
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: '8px',
-              color: 'var(--color-success)', fontSize: 'var(--fs-sm)',
-            }}>
-              <IconCircleCheck size={16} />
-              {result.inserted} de {result.total} empleados cargados.
-            </div>
-          )}
-          {result?.error && (
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: '8px',
-              color: 'var(--color-danger)', fontSize: 'var(--fs-sm)',
-            }}>
-              <IconAlertCircle size={16} />
-              {result.error}
-            </div>
+            {step === 2 && (
+              <>
+                <Select
+                  label="Turno"
+                  value={form.turno}
+                  onChange={v => update('turno', v)}
+                  options={TURNO_OPTIONS}
+                />
+                <Select
+                  label="Grupo"
+                  value={form.grupo}
+                  onChange={v => update('grupo', v)}
+                  options={GRUPO_OPTIONS}
+                />
+              </>
+            )}
+          </motion.div>
+        </AnimatePresence>
+
+        {step === CREATE_STEPS.length - 1 && (
+          <div style={{
+            background: 'var(--apple-blue-bg)', borderRadius: 'var(--radius-md)',
+            padding: '12px 14px', border: '1px solid var(--apple-blue-border)',
+            display: 'flex', flexDirection: 'column', gap: '4px',
+          }}>
+            <p style={{ margin: 0, fontWeight: 600, color: 'var(--apple-blue)', fontSize: 'var(--fs-body)', fontFamily: 'var(--font-text)' }}>
+              Resumen
+            </p>
+            <p style={{ margin: 0, fontSize: 'var(--fs-sm)', color: 'var(--text-secondary)', fontFamily: 'var(--font-text)' }}>
+              <strong>#{form.numero_empleado || '—'}</strong> {form.nombre || '—'}
+            </p>
+            <p style={{ margin: 0, fontSize: 'var(--fs-xs)', color: 'var(--text-tertiary)', fontFamily: 'var(--font-text)' }}>
+              {form.puesto || 'Sin puesto'} · {form.departamento || 'Sin departamento'} · T{form.turno} · Gr.{form.grupo}
+            </p>
+          </div>
+        )}
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px' }}>
+          <Button variant="pill" onClick={back} disabled={step === 0 || saving}>
+            Atrás
+          </Button>
+          {step < CREATE_STEPS.length - 1 ? (
+            <Button variant="primary" icon={IconChevronRight} onClick={next}>
+              Siguiente
+            </Button>
+          ) : (
+            <Button variant="primary" icon={IconUserPlus} onClick={submit} loading={saving}>
+              Crear empleado
+            </Button>
           )}
         </div>
-      </SettingsGroup>
+      </div>
+    </SettingsGroup>
+  );
+}
+
+function SectionEmpleados() {
+  return (
+    <>
+      <EmpleadoEditor />
+      <EmpleadoCreator />
     </>
   );
 }
@@ -788,7 +968,6 @@ function SectionContent({ id, user, updateProfile, updatePassword, onSignOut }) 
   switch (id) {
     case 'perfil':     return <SectionPerfil user={user} updateProfile={updateProfile} />;
     case 'apariencia': return <SectionApariencia />;
-    case 'empresa':    return <SectionEmpresa />;
     case 'empleados':  return <SectionEmpleados />;
     case 'seguridad':  return <SectionSeguridad onSignOut={onSignOut} updatePassword={updatePassword} />;
     default:           return null;
@@ -796,15 +975,16 @@ function SectionContent({ id, user, updateProfile, updatePassword, onSignOut }) 
 }
 
 // Página de configuración
-export function Configuracion({ setHeaderActions }) {
+export function Configuracion() {
+  const setHeaderActions = useHeaderActions();
   const { user, signOut, updateProfile, updatePassword } = useAuth();
   const [active,   setActive]   = useState('perfil');
   const [isMobile, setIsMobile] = useState(window.innerWidth < 641);
 
   useEffect(() => {
-    setHeaderActions?.(null);
-    return () => setHeaderActions?.(null);
-  }, []);
+    setHeaderActions(null);
+    return () => setHeaderActions(null);
+  }, [setHeaderActions]);
 
   useEffect(() => {
     const handler = () => setIsMobile(window.innerWidth < 641);

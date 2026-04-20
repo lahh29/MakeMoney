@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import { Popover } from '../components/ui/Popover';
 import { useAppearance } from '../hooks/useAppearance';
 import { useAuth } from '../hooks/useAuth';
+import { HeaderActionsProvider, useHeaderActionsValue } from '../hooks/useHeaderActions';
 
 const Inicio = lazy(() => import('./Inicio').then(m => ({ default: m.Inicio })));
 const Compromisos = lazy(() => import('./Compromisos').then(m => ({ default: m.Compromisos })));
@@ -19,12 +20,29 @@ const PAGES = {
   '/configuracion':  { label: 'Configuración', icon: IconSettings      },
 };
 
+function HeaderActionsSlot() {
+  const headerActions = useHeaderActionsValue();
+  if (!headerActions) return null;
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '8px' }}>
+      {headerActions}
+    </div>
+  );
+}
+
 export function Home({ onLogout }) {
+  return (
+    <HeaderActionsProvider>
+      <HomeInner onLogout={onLogout} />
+    </HeaderActionsProvider>
+  );
+}
+
+function HomeInner({ onLogout }) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { isDark, toggleDark } = useAppearance();
   const { user } = useAuth();
-  const [headerActions, setHeaderActions] = useState(null);
 
   // Responsive sidebar
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -125,11 +143,7 @@ export function Home({ onLogout }) {
             <span style={{ color: 'var(--header-text)', fontWeight: 600, fontSize: 'var(--fs-lg)' }}>
               {currentLabel}
             </span>
-            {headerActions && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '8px' }}>
-                {headerActions}
-              </div>
-            )}
+            <HeaderActionsSlot />
 
             {/* User pill — right side */}
             <div style={{ marginLeft: 'auto' }}>
@@ -203,10 +217,10 @@ export function Home({ onLogout }) {
           </div>
         }>
           <Routes>
-            <Route index element={<Inicio setHeaderActions={setHeaderActions} />} />
-            <Route path="compromisos" element={<Compromisos setHeaderActions={setHeaderActions} />} />
-            <Route path="compromisos/:id" element={<DetalleCompromiso setHeaderActions={setHeaderActions} />} />
-            <Route path="configuracion" element={<Configuracion setHeaderActions={setHeaderActions} />} />
+            <Route index element={<Inicio />} />
+            <Route path="compromisos" element={<Compromisos />} />
+            <Route path="compromisos/:id" element={<DetalleCompromiso />} />
+            <Route path="configuracion" element={<Configuracion />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>

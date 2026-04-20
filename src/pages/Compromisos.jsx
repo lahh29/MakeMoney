@@ -15,12 +15,13 @@ import { Skeleton } from '../components/ui/Skeleton';
 import { useNotification } from '../components/ui/Notification';
 import { getCompromisos, createCompromiso } from '../lib/compromisos';
 import { getEmpleado, getGrupos } from '../lib/empleados';
+import { useHeaderActions } from '../hooks/useHeaderActions';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const ESTADO_CONFIG = {
   en_curso:   { label: 'En Curso',   color: 'var(--apple-blue)',    bg: 'var(--apple-blue-bg)',   Icon: IconClockHour4   },
-  completado: { label: 'Completado', color: 'var(--color-success)', bg: 'rgba(52,199,89,0.10)',   Icon: IconCircleCheck  },
+  completado: { label: 'Completado', color: 'var(--color-success)', bg: 'var(--color-success-bg)',   Icon: IconCircleCheck  },
   atrasado:   { label: 'Atrasado',   color: 'var(--color-danger)',  bg: 'var(--color-danger-bg)', Icon: IconAlertCircle  },
 };
 
@@ -183,7 +184,7 @@ function EmpleadoInfoCard({ empleado }) {
       display: 'flex', alignItems: 'center', gap: '8px',
       padding: '8px 12px', borderRadius: 'var(--radius-pill)',
       background: 'var(--apple-blue-bg)',
-      border: '1px solid rgba(0,113,227,0.15)',
+      border: '1px solid var(--apple-blue-border)',
       alignSelf: 'flex-start',
     }}>
       <IconCircleCheck size={14} color="var(--apple-blue)" strokeWidth={2.2} />
@@ -429,8 +430,9 @@ function NuevoCompromisoModal({ isOpen, onClose, onCreated }) {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
-export function Compromisos({ setHeaderActions }) {
+export function Compromisos() {
   const navigate = useNavigate();
+  const setHeaderActions = useHeaderActions();
   const [compromisos, setCompromisos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('todos');
@@ -458,18 +460,18 @@ export function Compromisos({ setHeaderActions }) {
   }, []);
 
   useEffect(() => {
-    setHeaderActions?.(
+    setHeaderActions(
       <motion.button
         onClick={() => setShowModal(true)}
         title="Nuevo compromiso"
         aria-label="Nuevo compromiso"
-        whileHover={{ scale: 1.1, boxShadow: '0 4px 14px rgba(0,113,227,0.38)' }}
+        whileHover={{ scale: 1.1, boxShadow: '0 4px 14px var(--apple-blue-glow)' }}
         whileTap={{ scale: 0.9 }}
         transition={{ type: 'spring', stiffness: 420, damping: 22 }}
         style={{
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
           width: '32px', height: '32px', borderRadius: '50%',
-          background: 'var(--apple-blue)', color: '#fff',
+          background: 'var(--apple-blue)', color: 'var(--text-on-accent)',
           border: 'none', cursor: 'pointer',
           minHeight: 'unset', minWidth: 'unset',
         }}
@@ -477,8 +479,8 @@ export function Compromisos({ setHeaderActions }) {
         <IconPlus size={16} strokeWidth={2.5} />
       </motion.button>
     );
-    return () => setHeaderActions?.(null);
-  }, [setHeaderActions, setShowModal]);
+    return () => setHeaderActions(null);
+  }, [setHeaderActions]);
 
   const visible = useMemo(() => compromisos.filter(c => {
     const matchFilter = filter === 'todos' || c.estado === filter;
@@ -602,16 +604,16 @@ export function Compromisos({ setHeaderActions }) {
             initial={{ opacity: 0, scale: 0.4, y: 16 }}
             animate={{ opacity: 1, scale: 1,   y: 0  }}
             exit={{    opacity: 0, scale: 0.4,  y: 16 }}
-            whileHover={{ scale: 1.12, boxShadow: '0 6px 22px rgba(0,113,227,0.52)' }}
+            whileHover={{ scale: 1.12, boxShadow: '0 6px 22px var(--apple-blue-glow-hover)' }}
             whileTap={{ scale: 0.9 }}
             transition={{ type: 'spring', stiffness: 380, damping: 22 }}
             style={{
               position: 'fixed', bottom: '28px', right: '28px',
               width: '52px', height: '52px', borderRadius: '50%',
-              background: 'var(--apple-blue)', color: '#fff',
+              background: 'var(--apple-blue)', color: 'var(--text-on-accent)',
               border: 'none', cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 4px 16px rgba(0,113,227,0.4)',
+              boxShadow: '0 4px 16px var(--apple-blue-glow)',
               zIndex: 300,
             }}
           >

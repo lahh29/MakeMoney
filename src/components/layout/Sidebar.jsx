@@ -49,7 +49,7 @@ export function Sidebar({ children, isOpen = true, className = '', style }) {
             borderBottom: '1px solid var(--border-divider)',
             flexShrink: 0,
           }}>
-            <span style={{ fontWeight: 700, fontSize: 'var(--fs-nav)', letterSpacing: '-0.2px', color: 'var(--text-primary)' }}>Vertx Systems</span>
+            <span style={{ fontWeight: 700, fontSize: 'var(--fs-nav)', letterSpacing: '-0.2px', color: 'var(--text-primary)' }}>ViñoPlastic</span>
           </div>
 
           {/* Nav content */}

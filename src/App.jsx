@@ -60,7 +60,7 @@ function AppContent() {
 
   return (
     <>
-      <PlaneTransition isActive={showPlane} onComplete={handleTransitionComplete} />
+      <PlaneTransition isActive={showPlane} direction={transitionDir.current} onComplete={handleTransitionComplete} />
       <Routes>
         {isAuthenticated ? (
           <Route path="/*" element={<Home onLogout={handleLogout} />} />

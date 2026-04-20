@@ -12,10 +12,11 @@ import { Box } from '../components/ui/Box';
 import { Skeleton } from '../components/ui/Skeleton';
 import { getCompromisos } from '../lib/compromisos';
 import { useAuth } from '../hooks/useAuth';
+import { useHeaderActions } from '../hooks/useHeaderActions';
 
 const ESTADO_CONFIG = {
   en_curso:   { label: 'En Curso',    color: 'var(--apple-blue)',    bg: 'var(--apple-blue-bg)',   Icon: IconClockHour4   },
-  completado: { label: 'Completado',  color: 'var(--color-success)', bg: 'rgba(52,199,89,0.10)',   Icon: IconCircleCheck  },
+  completado: { label: 'Completado',  color: 'var(--color-success)', bg: 'var(--color-success-bg)',   Icon: IconCircleCheck  },
   atrasado:   { label: 'Atrasado',    color: 'var(--color-danger)',  bg: 'var(--color-danger-bg)', Icon: IconAlertCircle  },
 };
 
@@ -135,13 +136,14 @@ function SkeletonListCard() {
   );
 }
 
-export function Inicio({ setHeaderActions }) {
+export function Inicio() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const setHeaderActions = useHeaderActions();
   const [compromisos, setCompromisos] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => { setHeaderActions?.(null); return () => setHeaderActions?.(null); }, [setHeaderActions]);
+  useEffect(() => { setHeaderActions(null); return () => setHeaderActions(null); }, [setHeaderActions]);
 
   const load = useCallback(async () => {
     setLoading(true);

@@ -73,27 +73,36 @@ export async function updateEmpleadoTurnoGrupo(numero_empleado, { turno, grupo }
 }
 
 /**
- * Carga masiva de empleados desde JSON (temporal).
- * Upsert por numero_empleado. Retorna inserted y total.
+ * Crear un empleado individual.
+ * Insert directo. Lanza error si numero_empleado ya existe.
  */
-export async function bulkCreateEmpleados(empleados) {
-  const rows = empleados.map(e => ({
-    numero_empleado: String(e.numero_empleado ?? '').trim(),
-    nombre:          String(e.nombre ?? '').trim(),
-    puesto:          String(e.puesto ?? '').trim(),
-    departamento:    String(e.departamento ?? '').trim(),
-    turno:           String(e.turno ?? '1').trim(),
-    grupo:           String(e.grupo ?? 'A').trim(),
-    activo:          e.activo !== false,
-  })).filter(r => r.numero_empleado && r.nombre);
+export async function createEmpleado(empleado) {
+  const row = {
+    numero_empleado: String(empleado.numero_empleado ?? '').trim(),
+    nombre:          String(empleado.nombre ?? '').trim(),
+    puesto:          String(empleado.puesto ?? '').trim(),
+    departamento:    String(empleado.departamento ?? '').trim(),
+    turno:           String(empleado.turno ?? '1').trim(),
+    grupo:           String(empleado.grupo ?? 'A').trim(),
+    activo:          true,
+  };
 
-  if (rows.length === 0) throw new Error('Ningún registro válido en el JSON. Verifica que los campos "numero_empleado" y "nombre" existan.');
+  if (!row.numero_empleado || !row.nombre) {
+    throw new Error('Número de empleado y nombre son obligatorios.');
+  }
 
   const { data, error } = await supabase
     .from('empleados')
-    .upsert(rows, { onConflict: 'numero_empleado' })
-    .select('numero_empleado');
+    .insert(row)
+    .select()
+    .single();
 
-  if (error) throw error;
-  return { inserted: data?.length ?? 0, total: rows.length };
+  if (error) {
+    if (error.code === '23505') {
+      throw new Error(`El número de empleado "${row.numero_empleado}" ya existe.`);
+    }
+    throw error;
+  }
+
+  return data;
 }

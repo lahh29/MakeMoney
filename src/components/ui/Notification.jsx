@@ -246,7 +246,7 @@ function ActionModal({ n, onRemove, index }) {
               flex: 1, padding: '9px 0', borderRadius: 'var(--radius-sm)',
               border: 'none', cursor: 'pointer',
               background: isDelete ? 'var(--color-danger)' : 'var(--apple-blue)',
-              fontSize: 'var(--fs-body)', fontWeight: 600, color: '#fff',
+              fontSize: 'var(--fs-body)', fontWeight: 600, color: 'var(--text-on-accent)',
               fontFamily: 'var(--font-text)',
             }}
           >

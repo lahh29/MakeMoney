@@ -1,8 +1,7 @@
 {
-  "name": "PostSell",
-  "short_name": "PostSell",
-  "description": "Sistema de gestión inteligente de postventa",
-  "start_url": "/",
+  "name": "ViñoPlastic",
+  "short_name": "ViñoPlastic",
+  "description": "Compromisos Mandos Medios — Planta Querétaro",  "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#0071e3",

@@ -13,13 +13,12 @@ import {
   getCompromiso, getRegistros, addRegistro,
   getEvidencias, addEvidencia, deleteCompromiso,
 } from '../lib/compromisos';
-import { useAuth } from '../hooks/useAuth';
-
+import { useAuth } from '../hooks/useAuth';import { useHeaderActions } from '../hooks/useHeaderActions';
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const ESTADO_CONFIG = {
   en_curso:   { label: 'En Curso',   color: 'var(--apple-blue)',    bg: 'var(--apple-blue-bg)',   Icon: IconClockHour4  },
-  completado: { label: 'Completado', color: 'var(--color-success)', bg: 'rgba(52,199,89,0.10)',   Icon: IconCircleCheck },
+  completado: { label: 'Completado', color: 'var(--color-success)', bg: 'var(--color-success-bg)',   Icon: IconCircleCheck },
   atrasado:   { label: 'Atrasado',   color: 'var(--color-danger)',  bg: 'var(--color-danger-bg)', Icon: IconAlertCircle },
 };
 
@@ -103,7 +102,7 @@ function RegistroItem({ registro }) {
     >
       <div style={{
         width: '28px', height: '28px', borderRadius: 'var(--radius-circle)',
-        background: 'rgba(52,199,89,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: 'var(--color-success-bg-strong)', display: 'flex', alignItems: 'center', justifyContent: 'center',
         flexShrink: 0, marginTop: '1px',
       }}>
         <IconCircleCheck size={16} color="var(--color-success)" strokeWidth={2} />
@@ -355,8 +354,8 @@ export function DetalleCompromiso({ setHeaderActions }) {
   useEffect(() => { load(); }, [load]);
 
   useEffect(() => {
-    setHeaderActions?.(null);
-    return () => setHeaderActions?.(null);
+    setHeaderActions(null);
+    return () => setHeaderActions(null);
   }, [setHeaderActions]);
 
   const handleDelete = async () => {

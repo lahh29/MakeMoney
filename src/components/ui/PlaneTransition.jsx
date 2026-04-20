@@ -1,8 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { IconSend } from '@tabler/icons-react';
 
-export function PlaneTransition({ isActive, onComplete }) {
+/**
+ * Apple Aperture Transition.
+ * Black overlay opens via radial clip-path (camera lens).
+ * Logo + greeting breathe in center, then aperture closes/opens to reveal app.
+ *
+ * Phases:
+ *   idle    → no render
+ *   cover   → overlay fades in (clip 0% → 150%)
+ *   reveal  → text breathes (scale + opacity)
+ *   open    → aperture clip-path collapses (150% → 0%) revealing app
+ */
+export function PlaneTransition({ isActive, direction = 'login', onComplete }) {
   const [phase, setPhase] = useState('idle');
 
   const stableOnComplete = useCallback(() => {
@@ -15,86 +25,78 @@ export function PlaneTransition({ isActive, onComplete }) {
       return;
     }
 
-    setPhase('flying');
-
-    const coverTimer = setTimeout(() => setPhase('covered'), 1000);
-    const doneTimer = setTimeout(() => {
+    setPhase('cover');
+    const t1 = setTimeout(() => setPhase('reveal'), 350);
+    const t2 = setTimeout(() => setPhase('open'),   1500);
+    const t3 = setTimeout(() => {
       setPhase('idle');
       stableOnComplete();
-    }, 2200);
+    }, 2400);
 
     return () => {
-      clearTimeout(coverTimer);
-      clearTimeout(doneTimer);
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
     };
   }, [isActive, stableOnComplete]);
+
+  const greeting = direction === 'logout' ? 'Hasta luego' : 'Bienvenido';
+
+  // Apple easings
+  const EASE_OUT_EXPO = [0.22, 1, 0.36, 1];
+  const EASE_IN_OUT   = [0.65, 0, 0.35, 1];
 
   return (
     <AnimatePresence>
       {phase !== 'idle' && (
         <motion.div
-          className="plane-transition-overlay"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          className="aperture-overlay"
+          initial={{ clipPath: 'circle(0% at 50% 50%)' }}
+          animate={{
+            clipPath:
+              phase === 'open'
+                ? 'circle(0% at 50% 50%)'
+                : 'circle(150% at 50% 50%)',
+          }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
+          transition={{
+            clipPath: {
+              duration: phase === 'open' ? 0.9 : 0.55,
+              ease: phase === 'open' ? EASE_IN_OUT : EASE_OUT_EXPO,
+            },
+            opacity: { duration: 0.3 },
+          }}
         >
-          {/* Trail dots */}
-          <div className="plane-trail">
-            {[...Array(8)].map((_, i) => (
+          <AnimatePresence>
+            {phase === 'reveal' && (
               <motion.div
-                key={i}
-                className="plane-trail-dot"
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{
-                  opacity: [0, 0.5, 0],
-                  scale: [0, 1, 0.2],
-                }}
+                key="content"
+                className="aperture-content"
+                initial={{ opacity: 0, scale: 0.96, y: 6 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 1.02, y: -4 }}
                 transition={{
-                  duration: 1,
-                  delay: 0.06 * i + 0.3,
-                  ease: 'easeOut',
+                  duration: 0.7,
+                  ease: EASE_OUT_EXPO,
                 }}
-              />
-            ))}
-          </div>
-
-          {/* Airplane */}
-          <motion.div
-            className="plane-icon"
-            initial={{ x: -300, y: 200, rotate: -20, scale: 0.5, opacity: 0 }}
-            animate={{
-              x: [null, 0, 300],
-              y: [null, -20, -250],
-              rotate: [null, -10, -18],
-              scale: [null, 1.3, 0.4],
-              opacity: [0, 1, 0],
-            }}
-            transition={{
-              duration: 1.6,
-              ease: [0.25, 0.1, 0.25, 1],
-              times: [0, 0.45, 1],
-            }}
-          >
-            <IconSend size={56} strokeWidth={1.5} />
-          </motion.div>
-
-          {/* Circle wipe */}
-          <motion.div
-            className="plane-circle-wipe"
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{
-              scale: phase === 'covered' ? 40 : 0,
-              opacity: phase === 'covered' ? 1 : 0,
-            }}
-            exit={{ opacity: 0 }}
-            transition={{
-              scale: { duration: 0.9, ease: [0.22, 1, 0.36, 1] },
-              opacity: { duration: 0.3 },
-            }}
-          />
+              >
+                <motion.div
+                  className="aperture-logo"
+                  animate={{ scale: [1, 1.04, 1] }}
+                  transition={{
+                    duration: 1.4,
+                    ease: 'easeInOut',
+                  }}
+                >
+                  V
+                </motion.div>
+                <p className="aperture-greeting">{greeting}</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       )}
     </AnimatePresence>
   );
 }
+

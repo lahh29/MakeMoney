@@ -1,4 +1,4 @@
-const CACHE_NAME = 'postsell-v1';
+const CACHE_NAME = 'vinoplastic-v1';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
