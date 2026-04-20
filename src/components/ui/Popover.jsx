@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-export function Popover({ trigger, content, position = 'bottom' }) {
+export function Popover({ trigger, content, position = 'bottom', align = 'start' }) {
   const [isOpen, setIsOpen] = useState(false);
   const popoverRef = useRef(null);
 
@@ -25,8 +25,8 @@ export function Popover({ trigger, content, position = 'bottom' }) {
           zIndex: 1050, 
           top: position === 'bottom' ? '100%' : 'auto',
           bottom: position === 'top' ? '100%' : 'auto',
-          left: position === 'right' ? '100%' : position === 'bottom' ? '0' : 'auto',
-          right: position === 'left' ? '100%' : 'auto',
+          left: align === 'end' ? 'auto' : (position === 'right' ? '100%' : position === 'bottom' ? '0' : 'auto'),
+          right: align === 'end' ? '0' : (position === 'left' ? '100%' : 'auto'),
           marginTop: position === 'bottom' ? '8px' : 0,
           marginBottom: position === 'top' ? '8px' : 0,
           padding: '12px',

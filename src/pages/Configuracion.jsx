@@ -1,15 +1,16 @@
-﻿import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   IconUser, IconBuildingStore, IconPalette, IconShield,
   IconChevronRight, IconSun, IconMoon, IconLock, IconLogout,
-  IconEye, IconEyeOff, IconBolt, IconRefresh,
+  IconEye, IconEyeOff, IconBolt, IconRefresh, IconCamera,
 } from '@tabler/icons-react';
 import { Box } from '../components/ui/Box';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
 import { useAuth } from '../hooks/useAuth';
 import { useNotification } from '../components/ui/Notification';
+import { supabase } from '../lib/supabase';
 import { fetchUserSettings, saveEmpresa as saveEmpresaRemote } from '../lib/settings';
 import {
   useAppearance,
@@ -207,7 +208,11 @@ function SectionPerfil({ user, updateProfile }) {
   const stored  = user?.user_metadata?.full_name ?? user?.email?.split('@')[0] ?? 'Administrador';
   const [nombre,  setNombre]  = useState(stored);
   const [loading, setLoading] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const fileInputRef = useRef(null);
   const email = user?.email ?? 'Name';
+
+  const avatarUrl = user?.user_metadata?.avatar_url;
 
   const handleSave = async () => {
     if (!nombre.trim()) return;
@@ -222,23 +227,108 @@ function SectionPerfil({ user, updateProfile }) {
     }
   };
 
+  const handlePhotoChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type and size
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      notify.error('Solo se permiten imágenes JPG, PNG o WebP.');
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      notify.error('La imagen no debe superar 2 MB.');
+      return;
+    }
+
+    setUploadingPhoto(true);
+    try {
+      const ext = file.name.split('.').pop();
+      const filePath = `avatars/${user.id}.${ext}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, { upsert: true, contentType: file.type });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      // Append cache-buster to force refresh
+      const url = `${publicUrl}?t=${Date.now()}`;
+      await updateProfile({ avatar_url: url });
+      notify.success('Foto de perfil actualizada.');
+    } catch (err) {
+      notify.error(err.message ?? 'Error al subir foto.');
+    } finally {
+      setUploadingPhoto(false);
+      // Reset input so same file can be re-selected
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   const initial = nombre.trim().charAt(0).toUpperCase() || '?';
 
   return (
     <>
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
-        <div style={{
-          width: '64px', height: '64px', borderRadius: '50%',
-          background: 'linear-gradient(135deg, var(--apple-blue), var(--apple-blue-light))',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color: '#fff', fontSize: '24px', fontWeight: 700,
-          boxShadow: 'var(--shadow-blue)', flexShrink: 0,
-        }}>
-          {initial}
+        <div
+          onClick={() => !uploadingPhoto && fileInputRef.current?.click()}
+          style={{
+            width: '64px', height: '64px', borderRadius: '50%',
+            background: avatarUrl ? 'none' : 'linear-gradient(135deg, var(--apple-blue), var(--apple-blue-light))',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: '#fff', fontSize: '24px', fontWeight: 700,
+            boxShadow: 'var(--shadow-blue)', flexShrink: 0,
+            position: 'relative', cursor: 'pointer', overflow: 'hidden',
+          }}
+        >
+          {avatarUrl ? (
+            <img
+              src={avatarUrl}
+              alt="Avatar"
+              style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+            />
+          ) : (
+            initial
+          )}
+          {/* Hover overlay */}
+          <div style={{
+            position: 'absolute', inset: 0, borderRadius: '50%',
+            background: 'rgba(0,0,0,0.4)', display: 'flex',
+            alignItems: 'center', justifyContent: 'center',
+            opacity: uploadingPhoto ? 1 : 0,
+            transition: 'opacity 0.15s ease',
+          }}
+            className="avatar-overlay"
+          >
+            <IconCamera size={20} color="#fff" />
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            onChange={handlePhotoChange}
+            style={{ display: 'none' }}
+          />
         </div>
         <div>
           <p style={{ fontSize: 'var(--fs-lg)', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>{nombre || ''}</p>
           <p style={{ fontSize: 'var(--fs-md)', color: 'var(--text-tertiary)', margin: '3px 0 0' }}>{email}</p>
+          <button
+            onClick={() => !uploadingPhoto && fileInputRef.current?.click()}
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              color: 'var(--apple-blue)', fontSize: 'var(--fs-sm)',
+              fontWeight: 500, padding: 0, marginTop: '4px',
+              minHeight: 'unset', minWidth: 'unset',
+            }}
+          >
+            {uploadingPhoto ? 'Subiendo…' : 'Cambiar foto'}
+          </button>
         </div>
       </div>
       <SettingsGroup title="Información personal">
@@ -414,7 +504,7 @@ function SectionEmpresa() {
         <Input label="Dirección" value={form.direccion} onChange={set('direccion')} placeholder="Calle, Ciudad" />
       </div>
       <div style={{ padding: '0 16px 16px', display: 'flex', justifyContent: 'flex-end' }}>
-        <Button variant="primary" onClick={handleSave} loading={loading || fetching}>
+        <Button variant="primary" onClick={handleSave} loading={loading} disabled={fetching}>
           Guardar cambios
         </Button>
       </div>

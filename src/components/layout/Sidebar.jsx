@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { IconMoon, IconSun, IconLogout, IconUser, IconChevronDown, IconSettings } from '@tabler/icons-react';
 
 const sidebarVariants = {
   hidden: { x: '-100%', opacity: 0.8 },
@@ -8,21 +7,36 @@ const sidebarVariants = {
   exit: { x: '-100%', opacity: 0 }
 };
 
-export function Sidebar({ children, isOpen = true, isDark, toggleTheme, onLogout, onNavigate, user, role, className = '', style }) {
-  const [userOpen, setUserOpen] = useState(false);
-
+export function Sidebar({ children, isOpen = true, className = '', style }) {
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.aside
-          className={`sidebar ${className}`.trim()}
-          style={style}
-          variants={sidebarVariants}
-          initial="hidden"
-          animate="visible"
-          exit="exit"
-          transition={{ type: 'tween', duration: 0.2, ease: 'easeInOut' }}
+        <div
+          className="sidebar-wrapper"
+          style={{
+            position: 'fixed',
+            left: 0,
+            top: 0,
+            width: '220px',
+            height: '100%',
+            zIndex: 110,
+            overflow: 'hidden',
+          }}
         >
+          <motion.aside
+            className={`sidebar ${className}`.trim()}
+            style={{
+              ...style,
+              position: 'relative',
+              height: '100%',
+              width: '100%',
+            }}
+            variants={sidebarVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={{ type: 'tween', duration: 0.2, ease: 'easeInOut' }}
+          >
           {/* Brand bar */}
           <div style={{
             height: 'calc(48px + env(safe-area-inset-top))',
@@ -39,92 +53,12 @@ export function Sidebar({ children, isOpen = true, isDark, toggleTheme, onLogout
           </div>
 
           {/* Nav content */}
-          <div style={{ padding: '12px 0', flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
+          <div style={{ padding: '12px 0', flex: 1, minHeight: 0, overflowY: 'auto', overflowX: 'hidden' }}>
             {children}
           </div>
 
-          {/* User section — pinned bottom */}
-          <div style={{ borderTop: '1px solid var(--border-divider)', flexShrink: 0 }}>
-
-            {/* Action buttons — expand upward */}
-            <AnimatePresence>
-              {userOpen && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 32 }}
-                  style={{ overflow: 'hidden' }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', padding: '10px 16px', borderBottom: '1px solid var(--border-divider)' }}>
-                    <motion.button
-                      className="dropdown-icon-action"
-                      title={isDark ? 'Tema Claro' : 'Tema Oscuro'}
-                      aria-label={isDark ? 'Tema Claro' : 'Tema Oscuro'}
-                      onClick={() => { toggleTheme?.(); setUserOpen(false); }}
-                      whileHover={{ rotate: 180, scale: 1.15 }}
-                      whileTap={{ scale: 0.88 }}
-                      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                    >
-                      {isDark ? <IconSun size={18} /> : <IconMoon size={18} />}
-                    </motion.button>
-                    <motion.button
-                      className="dropdown-icon-action"
-                      title="Configuración"
-                      aria-label="Configuración"
-                      onClick={() => { onNavigate?.('/configuracion'); setUserOpen(false); }}
-                      whileHover={{ rotate: 45, scale: 1.15 }}
-                      whileTap={{ scale: 0.88 }}
-                      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                    >
-                      <IconSettings size={18} />
-                    </motion.button>
-                    <motion.button
-                      className="dropdown-icon-action dropdown-icon-action--danger"
-                      title="Cerrar Sesión"
-                      aria-label="Cerrar Sesión"
-                      onClick={() => { setUserOpen(false); onLogout?.(); }}
-                      whileHover={{ x: 3, scale: 1.15 }}
-                      whileTap={{ scale: 0.88 }}
-                      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                    >
-                      <IconLogout size={18} />
-                    </motion.button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* User row trigger */}
-            <motion.div
-              className="sidebar-user-row"
-              onClick={() => setUserOpen(prev => !prev)}
-              whileHover={{ backgroundColor: 'var(--bg-surface)' }}
-              transition={{ duration: 0.15 }}
-            >
-              <div className="header-avatar">
-                <IconUser size={15} />
-              </div>
-              <div className="header-user-text">
-                <span className="header-user-name">
-                  {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuario'}
-                </span>
-                <span className="header-user-email">
-                  {role || user?.email || ''}
-                </span>
-              </div>
-              <motion.span
-                className="header-chevron"
-                style={{ marginLeft: 'auto' }}
-                animate={{ rotate: userOpen ? 180 : 0 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-              >
-                <IconChevronDown size={13} />
-              </motion.span>
-            </motion.div>
-
-          </div>
         </motion.aside>
+        </div>
       )}
     </AnimatePresence>
   );

@@ -1,16 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { Header } from '../components/layout/Header';
 import { Sidebar } from '../components/layout/Sidebar';
-import { IconSend, IconHome, IconShoppingCart, IconPackage, IconChartBar, IconSettings } from '@tabler/icons-react';
+import { IconSend, IconHome, IconShoppingCart, IconPackage, IconChartBar, IconSettings, IconUser, IconMoon, IconSun, IconLogout } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
-import { Ventas } from './Ventas';
-import { Productos } from './Productos';
-import { Resumen } from './Resumen';
-import { Configuracion } from './Configuracion';
-import { Inicio } from './Inicio';
+import { Popover } from '../components/ui/Popover';
 import { useAppearance } from '../hooks/useAppearance';
 import { useAuth } from '../hooks/useAuth';
+
+const Ventas = lazy(() => import('./Ventas').then(m => ({ default: m.Ventas })));
+const Productos = lazy(() => import('./Productos').then(m => ({ default: m.Productos })));
+const Resumen = lazy(() => import('./Resumen').then(m => ({ default: m.Resumen })));
+const Configuracion = lazy(() => import('./Configuracion').then(m => ({ default: m.Configuracion })));
+const Inicio = lazy(() => import('./Inicio').then(m => ({ default: m.Inicio })));
 
 const PAGES = {
   '/':              { label: 'Inicio',        icon: IconHome        },
@@ -24,7 +26,7 @@ export function Home({ onLogout }) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { isDark, toggleDark } = useAppearance();
-  const { user, role } = useAuth();
+  const { user } = useAuth();
   const [headerActions, setHeaderActions] = useState(null);
 
   // Responsive sidebar
@@ -65,12 +67,6 @@ export function Home({ onLogout }) {
 
       <Sidebar
         isOpen={isSidebarOpen}
-        isDark={isDark}
-        toggleTheme={toggleDark}
-        onLogout={onLogout}
-        onNavigate={handleNavigate}
-        user={user}
-        role={role}
       >
         <nav style={{ padding: '12px 12px 24px' }}>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -113,7 +109,7 @@ export function Home({ onLogout }) {
         transition: 'margin 0.2s ease',
       }}>
         <Header>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
             <motion.button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
               animate={{ rotate: isSidebarOpen ? 0 : 180 }}
@@ -136,17 +132,87 @@ export function Home({ onLogout }) {
                 {headerActions}
               </div>
             )}
+
+            {/* User pill — right side */}
+            <div style={{ marginLeft: 'auto' }}>
+              <Popover
+                position="bottom"
+                align="end"
+                trigger={
+                  <button className="header-user-pill" type="button">
+                    <span className="header-avatar">
+                      {user?.user_metadata?.avatar_url ? (
+                        <img
+                          src={user.user_metadata.avatar_url}
+                          alt=""
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+                        />
+                      ) : (
+                        <IconUser size={14} />
+                      )}
+                    </span>
+                  </button>
+                }
+                content={
+                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                    <motion.button
+                      className="dropdown-icon-action"
+                      title={isDark ? 'Tema Claro' : 'Tema Oscuro'}
+                      aria-label={isDark ? 'Tema Claro' : 'Tema Oscuro'}
+                      onClick={() => toggleDark?.()}
+                      whileHover={{ rotate: 180, scale: 1.15 }}
+                      whileTap={{ scale: 0.88 }}
+                      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                    >
+                      {isDark ? <IconSun size={18} /> : <IconMoon size={18} />}
+                    </motion.button>
+                    <motion.button
+                      className="dropdown-icon-action"
+                      title="Configuración"
+                      aria-label="Configuración"
+                      onClick={() => handleNavigate('/configuracion')}
+                      whileHover={{ rotate: 45, scale: 1.15 }}
+                      whileTap={{ scale: 0.88 }}
+                      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                    >
+                      <IconSettings size={18} />
+                    </motion.button>
+                    <motion.button
+                      className="dropdown-icon-action dropdown-icon-action--danger"
+                      title="Cerrar Sesión"
+                      aria-label="Cerrar Sesión"
+                      onClick={() => onLogout?.()}
+                      whileHover={{ x: 3, scale: 1.15 }}
+                      whileTap={{ scale: 0.88 }}
+                      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                    >
+                      <IconLogout size={18} />
+                    </motion.button>
+                  </div>
+                }
+              />
+            </div>
           </div>
         </Header>
 
-        <Routes>
-          <Route index element={<Inicio setHeaderActions={setHeaderActions} />} />
-          <Route path="ventas" element={<Ventas setHeaderActions={setHeaderActions} />} />
-          <Route path="productos" element={<Productos setHeaderActions={setHeaderActions} />} />
-          <Route path="resumen" element={<Resumen setHeaderActions={setHeaderActions} />} />
-          <Route path="configuracion" element={<Configuracion setHeaderActions={setHeaderActions} />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+        <Suspense fallback={
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            minHeight: '200px', color: 'var(--text-tertiary)',
+            fontFamily: 'var(--font-text)', fontSize: 'var(--fs-body)'
+          }}>
+            Cargando...
+          </div>
+        }>
+          <Routes>
+            <Route index element={<Inicio setHeaderActions={setHeaderActions} />} />
+            <Route path="ventas" element={<Ventas setHeaderActions={setHeaderActions} />} />
+            <Route path="productos" element={<Productos setHeaderActions={setHeaderActions} />} />
+            <Route path="resumen" element={<Resumen setHeaderActions={setHeaderActions} />} />
+            <Route path="configuracion" element={<Configuracion setHeaderActions={setHeaderActions} />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
       </main>
     </div>
   );
