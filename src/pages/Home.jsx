@@ -2,24 +2,21 @@ import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { Header } from '../components/layout/Header';
 import { Sidebar } from '../components/layout/Sidebar';
-import { IconSend, IconHome, IconShoppingCart, IconPackage, IconChartBar, IconSettings, IconUser, IconMoon, IconSun, IconLogout } from '@tabler/icons-react';
+import { IconSend, IconHome, IconClipboardList, IconSettings, IconUser, IconMoon, IconSun, IconLogout } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
 import { Popover } from '../components/ui/Popover';
 import { useAppearance } from '../hooks/useAppearance';
 import { useAuth } from '../hooks/useAuth';
 
-const Ventas = lazy(() => import('./Ventas').then(m => ({ default: m.Ventas })));
-const Productos = lazy(() => import('./Productos').then(m => ({ default: m.Productos })));
-const Resumen = lazy(() => import('./Resumen').then(m => ({ default: m.Resumen })));
-const Configuracion = lazy(() => import('./Configuracion').then(m => ({ default: m.Configuracion })));
 const Inicio = lazy(() => import('./Inicio').then(m => ({ default: m.Inicio })));
+const Compromisos = lazy(() => import('./Compromisos').then(m => ({ default: m.Compromisos })));
+const DetalleCompromiso = lazy(() => import('./DetalleCompromiso').then(m => ({ default: m.DetalleCompromiso })));
+const Configuracion = lazy(() => import('./Configuracion').then(m => ({ default: m.Configuracion })));
 
 const PAGES = {
-  '/':              { label: 'Inicio',        icon: IconHome        },
-  '/ventas':        { label: 'Ventas',         icon: IconShoppingCart },
-  '/productos':     { label: 'Productos',      icon: IconPackage      },
-  '/resumen':       { label: 'Resumen',        icon: IconChartBar     },
-  '/configuracion': { label: 'Configuración',  icon: IconSettings     },
+  '/':               { label: 'Dashboard',     icon: IconHome          },
+  '/compromisos':    { label: 'Compromisos',   icon: IconClipboardList },
+  '/configuracion':  { label: 'Configuración', icon: IconSettings      },
 };
 
 export function Home({ onLogout }) {
@@ -44,7 +41,8 @@ export function Home({ onLogout }) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const currentLabel = PAGES[pathname]?.label ?? PAGES['/'].label;
+  const currentLabel = PAGES[pathname]?.label
+    ?? (pathname.startsWith('/compromisos/') ? 'Detalle' : PAGES['/'].label);
 
   useEffect(() => {
     document.title = currentLabel;
@@ -73,7 +71,7 @@ export function Home({ onLogout }) {
             {Object.entries(PAGES)
               .filter(([path]) => path !== '/configuracion')
               .map(([path, { label, icon: Icon }]) => {
-                const isActive = pathname === path;
+                const isActive = pathname === path || (path === '/compromisos' && pathname.startsWith('/compromisos/'));
                 return (
                   <motion.li
                     key={path}
@@ -206,9 +204,8 @@ export function Home({ onLogout }) {
         }>
           <Routes>
             <Route index element={<Inicio setHeaderActions={setHeaderActions} />} />
-            <Route path="ventas" element={<Ventas setHeaderActions={setHeaderActions} />} />
-            <Route path="productos" element={<Productos setHeaderActions={setHeaderActions} />} />
-            <Route path="resumen" element={<Resumen setHeaderActions={setHeaderActions} />} />
+            <Route path="compromisos" element={<Compromisos setHeaderActions={setHeaderActions} />} />
+            <Route path="compromisos/:id" element={<DetalleCompromiso setHeaderActions={setHeaderActions} />} />
             <Route path="configuracion" element={<Configuracion setHeaderActions={setHeaderActions} />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

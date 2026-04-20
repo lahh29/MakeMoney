@@ -682,18 +682,17 @@ a {
 .header-user-pill {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 5px 10px 5px 5px;
-  border-radius: 999px;
+  padding: 0;
   background: transparent;
-  border: 1px solid var(--border-divider);
+  border: none;
   cursor: pointer;
-  transition: background-color 0.15s, box-shadow 0.15s;
+  border-radius: 50%;
+  transition: opacity 0.15s, transform 0.15s;
 }
 
 .header-user-pill:hover {
-  background: rgba(0, 0, 0, 0.04);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+  opacity: 0.85;
+  transform: scale(1.06);
 }
 
 /* Avatar photo overlay on hover */
@@ -706,16 +705,15 @@ a {
 }
 
 .header-avatar {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--apple-blue), #40a9ff);
+  background: var(--apple-blue-bg);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--apple-blue);
   flex-shrink: 0;
-  box-shadow: 0 1px 6px rgba(0, 113, 227, 0.4);
   overflow: hidden;
 }
 
@@ -1103,6 +1101,28 @@ input[type='date'].form-input {
 @keyframes dropdownFadeIn {
   from { opacity: 0; transform: translateY(-4px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spin {
+  from { transform: translateY(-50%) rotate(0deg); }
+  to   { transform: translateY(-50%) rotate(360deg); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg-surface)      25%,
+    var(--border-divider)  50%,
+    var(--bg-surface)      75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+  display: block;
 }
 
 /* ==========================================================================

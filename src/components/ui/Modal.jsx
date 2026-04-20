@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { IconX, IconCheck, IconTrash } from '@tabler/icons-react';
 
 const PANEL_ANIM = {
@@ -9,6 +9,17 @@ const PANEL_ANIM = {
 };
 
 const spring = { type: 'spring', stiffness: 400, damping: 25 };
+
+const backdropVariants = {
+  hidden:  { opacity: 0 },
+  visible: { opacity: 1 },
+};
+
+const panelVariants = {
+  hidden:  { opacity: 0, scale: 0.92, y: 20 },
+  visible: { opacity: 1, scale: 1,    y: 0,  transition: { type: 'spring', stiffness: 380, damping: 28, delay: 0.04 } },
+  exit:    { opacity: 0, scale: 0.9,  y: 14, transition: { duration: 0.16, ease: 'easeIn' } },
+};
 
 export function Modal({ 
   isOpen, onClose, onAccept, onDelete, title, children,
@@ -23,26 +34,37 @@ export function Modal({
     }
   }, [isOpen]);
 
-  if (!isOpen) return null;
-
   return (
-    <div style={{ 
-      position: 'fixed', inset: 0, zIndex: 1000, 
-      display: 'flex', alignItems: 'center', justifyContent: 'center', 
-      backgroundColor: 'var(--bg-overlay)', 
-      backdropFilter: 'saturate(180%) blur(4px)',
-      WebkitBackdropFilter: 'saturate(180%) blur(4px)'
-    }}>
+    <AnimatePresence>
+      {isOpen && (
+    <motion.div
+      variants={backdropVariants}
+      initial="hidden"
+      animate="visible"
+      exit="hidden"
+      transition={{ duration: 0.18 }}
+      style={{ 
+        position: 'fixed', inset: 0, zIndex: 1000, 
+        display: 'flex', alignItems: 'center', justifyContent: 'center', 
+        backgroundColor: 'var(--bg-overlay)', 
+        backdropFilter: 'saturate(180%) blur(4px)',
+        WebkitBackdropFilter: 'saturate(180%) blur(4px)'
+      }}
+    >
       <div style={{ position: 'absolute', inset: 0 }} onClick={onClose} />
-      <div role="dialog" aria-modal="true" aria-label={title} style={{ 
-        position: 'relative', minWidth: '300px', maxWidth: '500px', width: '90%', maxHeight: 'min(85svh, 85vh)',
-        WebkitTransform: 'translateZ(0)',
-        transform: 'translateZ(0)',
-        willChange: 'transform',
-        backgroundColor: 'var(--bg-card)', borderRadius: 'var(--radius-xl)',
-        border: '1px solid var(--border-divider)', boxShadow: 'var(--shadow-float)',
-        display: 'flex', flexDirection: 'column', animation: 'dropdownFadeIn 0.2s ease'
-      }}>
+      <motion.div
+        role="dialog" aria-modal="true" aria-label={title}
+        variants={panelVariants}
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+        style={{ 
+          position: 'relative', minWidth: '300px', maxWidth: '500px', width: '90%', maxHeight: 'min(85svh, 85vh)',
+          willChange: 'transform',
+          backgroundColor: 'var(--bg-card)', borderRadius: 'var(--radius-xl)',
+          border: '1px solid var(--border-divider)', boxShadow: 'var(--shadow-float)',
+          display: 'flex', flexDirection: 'column',
+        }}>
         <div style={{ 
           display: 'flex', alignItems: 'center', padding: '12px 16px',
           borderBottom: '1px solid var(--border-divider)', minHeight: '48px', gap: '8px'
@@ -83,7 +105,9 @@ export function Modal({
           </div>
         </div>
         <div style={{ padding: '24px', flex: 1, overflowY: 'auto', overflowX: 'hidden', boxSizing: 'border-box', width: '100%', WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}>{children}</div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

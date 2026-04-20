@@ -4,7 +4,9 @@ import {
   IconUser, IconBuildingStore, IconPalette, IconShield,
   IconChevronRight, IconSun, IconMoon, IconLock, IconLogout,
   IconEye, IconEyeOff, IconBolt, IconRefresh, IconCamera,
+  IconUsers, IconUpload, IconCircleCheck, IconAlertCircle,
 } from '@tabler/icons-react';
+import { bulkCreateEmpleados } from '../lib/empleados';
 import { Box } from '../components/ui/Box';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
@@ -21,6 +23,7 @@ const SECTIONS = [
   { id: 'perfil',     label: 'Perfil',      icon: IconUser          },
   { id: 'apariencia', label: 'Apariencia',  icon: IconPalette       },
   { id: 'empresa',    label: 'Empresa',     icon: IconBuildingStore  },
+  { id: 'empleados',  label: 'Empleados',   icon: IconUsers          },
   { id: 'seguridad',  label: 'Seguridad',   icon: IconShield         },
 ];
 
@@ -631,12 +634,162 @@ function SectionSeguridad({ onSignOut, updatePassword }) {
   );
 }
 
+// ─── Sección: Empleados (carga temporal via JSON) ─────────────────────────────
+function SectionEmpleados() {
+  const notify   = useNotification();
+  const fileRef  = useRef(null);
+  const [preview,  setPreview]  = useState(null);  // { count, sample[] }
+  const [loading,  setLoading]  = useState(false);
+  const [result,   setResult]   = useState(null);  // { inserted, total } | { error }
+
+  const handleFile = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setResult(null);
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const parsed = JSON.parse(ev.target.result);
+        if (!Array.isArray(parsed)) throw new Error('El JSON debe ser un arreglo [ ... ]');
+        setPreview({ count: parsed.length, data: parsed, sample: parsed.slice(0, 3) });
+      } catch (err) {
+        notify.error(err.message ?? 'JSON inválido.');
+        setPreview(null);
+      }
+    };
+    reader.readAsText(file);
+    if (fileRef.current) fileRef.current.value = '';
+  };
+
+  const handleUpload = async () => {
+    if (!preview?.data) return;
+    setLoading(true);
+    setResult(null);
+    try {
+      const timeout = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Tiempo de espera agotado (15s). Verifica que la tabla "empleados" exista en Supabase y que el proyecto no esté pausado.')), 15000)
+      );
+      const res = await Promise.race([bulkCreateEmpleados(preview.data), timeout]);
+      setResult(res);
+      setPreview(null);
+      notify.success(`${res.inserted} empleados cargados correctamente.`);
+    } catch (err) {
+      const msg = err.message ?? 'Error al cargar empleados.';
+      setResult({ error: msg });
+      notify.error(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <SettingsGroup title="Carga masiva">
+        <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <p style={{ fontSize: 'var(--fs-sm)', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.5 }}>
+            Selecciona un archivo <code>.json</code> con un arreglo de empleados.
+            Campos requeridos: <code>numero_empleado</code>, <code>nombre</code>.
+            Opcionales: <code>puesto</code>, <code>departamento</code>, <code>turno</code> (1–4), <code>grupo</code> (A/B).
+          </p>
+
+          {/* JSON ejemplo */}
+          <pre style={{
+            background: 'var(--bg-input)', borderRadius: 'var(--radius-sm)',
+            padding: '10px 12px', fontSize: 'var(--fs-xs)',
+            color: 'var(--text-tertiary)', overflowX: 'auto', margin: 0,
+            border: '1px solid var(--border-divider)', fontFamily: 'monospace',
+          }}>{`[\n  {\n    "numero_empleado": "001",\n    "nombre": "Juan López",\n    "puesto": "Asesor",\n    "departamento": "Ventas",\n    "turno": "1",\n    "grupo": "A"\n  }\n]`}</pre>
+
+          <input
+            ref={fileRef}
+            type="file"
+            accept=".json,application/json"
+            onChange={handleFile}
+            style={{ display: 'none' }}
+          />
+
+          <button
+            onClick={() => fileRef.current?.click()}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '8px',
+              padding: '10px 16px', borderRadius: 'var(--radius-pill)',
+              border: '1.5px dashed var(--border-divider)',
+              background: 'var(--bg-input)', cursor: 'pointer',
+              color: 'var(--apple-blue)', fontSize: 'var(--fs-body)',
+              fontFamily: 'var(--font-text)', fontWeight: 500,
+              transition: 'border-color 0.15s ease',
+              minHeight: 'unset', minWidth: 'unset',
+            }}
+          >
+            <IconUpload size={16} />
+            Seleccionar archivo JSON
+          </button>
+
+          {/* Vista previa */}
+          {preview && (
+            <motion.div
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              style={{
+                background: 'var(--apple-blue-bg)', borderRadius: 'var(--radius-md)',
+                padding: '12px 14px', border: '1px solid var(--apple-blue)',
+                display: 'flex', flexDirection: 'column', gap: '6px',
+              }}
+            >
+              <p style={{ margin: 0, fontWeight: 600, color: 'var(--apple-blue)', fontSize: 'var(--fs-body)' }}>
+                {preview.count} empleado{preview.count !== 1 ? 's' : ''} detectados
+              </p>
+              {preview.sample.map((e, i) => (
+                <p key={i} style={{ margin: 0, fontSize: 'var(--fs-sm)', color: 'var(--text-secondary)' }}>
+                  {e.numero_empleado} — {e.nombre}
+                </p>
+              ))}
+              {preview.count > 3 && (
+                <p style={{ margin: 0, fontSize: 'var(--fs-xs)', color: 'var(--text-tertiary)' }}>
+                  …y {preview.count - 3} más
+                </p>
+              )}
+              <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                <Button variant="pill" onClick={() => setPreview(null)}>Cancelar</Button>
+                <Button variant="primary" onClick={handleUpload} loading={loading}>
+                  Cargar {preview.count} empleados
+                </Button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Resultado */}
+          {result && !result.error && (
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '8px',
+              color: 'var(--color-success)', fontSize: 'var(--fs-sm)',
+            }}>
+              <IconCircleCheck size={16} />
+              {result.inserted} de {result.total} empleados cargados.
+            </div>
+          )}
+          {result?.error && (
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '8px',
+              color: 'var(--color-danger)', fontSize: 'var(--fs-sm)',
+            }}>
+              <IconAlertCircle size={16} />
+              {result.error}
+            </div>
+          )}
+        </div>
+      </SettingsGroup>
+    </>
+  );
+}
+
 // Contenido de cada sección
 function SectionContent({ id, user, updateProfile, updatePassword, onSignOut }) {
   switch (id) {
     case 'perfil':     return <SectionPerfil user={user} updateProfile={updateProfile} />;
     case 'apariencia': return <SectionApariencia />;
     case 'empresa':    return <SectionEmpresa />;
+    case 'empleados':  return <SectionEmpleados />;
     case 'seguridad':  return <SectionSeguridad onSignOut={onSignOut} updatePassword={updatePassword} />;
     default:           return null;
   }
